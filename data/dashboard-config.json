@@ -1,0 +1,105 @@
+{
+  "schemaVersion": "0.1",
+  "generatedBy": "assembly-stub (hand-authored for prototype, stands in for the live model)",
+  "workspace": {
+    "name": "Daily Harbor",
+    "style": "intense",
+    "greeting": "Cast off."
+  },
+  "profile": {
+    "goalText": "Follow through on morning workouts and carry high energy through the day.",
+    "bubbles": ["Build better habits", "Confidence and drive", "Energy and follow-through"],
+    "freeText": "I loved Atomic Habits and I've done Tony Robbins. I keep starting and quitting. I want to actually follow through on working out in the mornings, and I want that fired-up energy to carry the day.",
+    "derivedThemes": ["habit formation", "peak state", "follow-through", "identity"]
+  },
+  "modules": [
+    {
+      "id": "moment",
+      "type": "motivation",
+      "title": "The Moment",
+      "sourceTag": "Peak state",
+      "config": {
+        "mood": "intense",
+        "quote": "Waste no more time arguing about what a good person should be. Be one.",
+        "attribution": "Marcus Aurelius",
+        "backgroundTheme": "storm-water",
+        "filmPlaceholder": true,
+        "ctaLabel": "Play today's hype"
+      }
+    },
+    {
+      "id": "prime-gratitude",
+      "type": "list",
+      "title": "Prime: three things already going right",
+      "sourceTag": "Peak state",
+      "config": {
+        "prompt": "Name three. Energy starts from what is already working, not from what is missing.",
+        "itemCount": 3,
+        "placeholder": "One good thing...",
+        "addLabel": "Add"
+      }
+    },
+    {
+      "id": "prime-visualize",
+      "type": "timed",
+      "title": "Prime: see it happen",
+      "sourceTag": "Mental rehearsal",
+      "config": {
+        "prompt": "Eyes closed. Watch yourself finish the workout and walk into the day already won.",
+        "durationSeconds": 60,
+        "startLabel": "Begin",
+        "doneLabel": "Done"
+      }
+    },
+    {
+      "id": "todays-move",
+      "type": "structured",
+      "title": "Today's move",
+      "sourceTag": "Implementation intention",
+      "config": {
+        "intro": "Decide the exact when and where. A plan beats willpower.",
+        "fields": [
+          { "key": "behavior", "label": "I will", "placeholder": "do a 20 minute workout" },
+          { "key": "time", "label": "at", "placeholder": "6:30 am" },
+          { "key": "place", "label": "in", "placeholder": "the garage" },
+          { "key": "anchor", "label": "right after", "placeholder": "I pour my coffee" }
+        ]
+      }
+    },
+    {
+      "id": "two-minute",
+      "type": "text",
+      "title": "The 2-minute version",
+      "sourceTag": "Make it easy",
+      "config": {
+        "prompt": "What is the smallest version you could not fail to do, even on your worst day? Shrinking it protects the streak.",
+        "placeholder": "Put on my shoes and step outside.",
+        "rows": 2
+      }
+    },
+    {
+      "id": "track",
+      "type": "tracker",
+      "title": "Track it",
+      "sourceTag": "Reinforce",
+      "config": {
+        "habitLabel": "Morning workout",
+        "checkLabel": "Done today",
+        "streakModel": "daily",
+        "historyDays": 7
+      }
+    },
+    {
+      "id": "identity",
+      "type": "journal",
+      "title": "Who you are becoming",
+      "sourceTag": "Identity",
+      "config": {
+        "prompt": "Finish the line. Every rep is a vote for this person.",
+        "prefix": "I am becoming someone who",
+        "placeholder": "shows up before the world wakes up.",
+        "rows": 2
+      }
+    }
+  ]
+}

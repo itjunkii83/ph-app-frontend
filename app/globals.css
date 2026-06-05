@@ -1,0 +1,83 @@
+@import "tailwindcss";
+
+@custom-variant dark (&:is(.dark *));
+@custom-variant data-checked (&[data-state="checked"]);
+
+:root {
+  /* Pause Harbor noir tokens */
+  --ink: #0a0b0d;
+  --ink-2: #111317;
+  --panel: #13161a;
+  --line: rgba(214, 224, 232, 0.1);
+  --paper: #e7ecf1;
+  --muted: #8b939b;
+  --pewter: #9aa5af;
+  --silver: #d6dde4;
+  --accent-gradient: linear-gradient(100deg, #eef3f7 0%, #a8b3bd 55%, #cfd8df 100%);
+
+  /* shadcn semantics mapped onto the noir palette */
+  --background: var(--ink);
+  --foreground: var(--paper);
+  --primary: var(--silver);
+  --primary-foreground: var(--ink);
+  --secondary: var(--ink-2);
+  --secondary-foreground: var(--paper);
+  --muted-surface: #181d22;
+  --muted-foreground: var(--muted);
+  --destructive: #c4554d;
+  --border: var(--line);
+  --input: rgba(214, 224, 232, 0.14);
+  --ring: rgba(214, 224, 232, 0.35);
+}
+
+@theme inline {
+  --color-ink: var(--ink);
+  --color-ink-2: var(--ink-2);
+  --color-panel: var(--panel);
+  --color-line: var(--line);
+  --color-paper: var(--paper);
+  --color-pewter: var(--pewter);
+  --color-silver: var(--silver);
+
+  --color-background: var(--background);
+  --color-foreground: var(--foreground);
+  --color-primary: var(--primary);
+  --color-primary-foreground: var(--primary-foreground);
+  --color-secondary: var(--secondary);
+  --color-secondary-foreground: var(--secondary-foreground);
+  --color-muted: var(--muted-surface);
+  --color-muted-foreground: var(--muted-foreground);
+  --color-destructive: var(--destructive);
+  --color-border: var(--border);
+  --color-input: var(--input);
+  --color-ring: var(--ring);
+
+  --font-display: var(--font-fraunces);
+  --font-body: var(--font-archivo);
+  --font-sans: var(--font-archivo);
+}
+
+body {
+  background: var(--ink);
+  color: var(--paper);
+  font-family: var(--font-archivo), ui-sans-serif, system-ui, sans-serif;
+  -webkit-font-smoothing: antialiased;
+}
+
+/* Accent gradient text for key headings and the streak fill */
+.text-accent-gradient {
+  background: var(--accent-gradient);
+  -webkit-background-clip: text;
+  background-clip: text;
+  color: transparent;
+}
+
+/* Sheen sweep for the hero hype pulse */
+@keyframes hero-sheen {
+  from {
+    transform: translateX(-130%) skewX(-14deg);
+  }
+  to {
+    transform: translateX(260%) skewX(-14deg);
+  }
+}

@@ -9,8 +9,10 @@
   --ink-2: #111317;
   --panel: #13161a;
   --line: rgba(214, 224, 232, 0.1);
+  --line-2: rgba(214, 224, 232, 0.18);
   --paper: #e7ecf1;
   --muted: #8b939b;
+  --muted-2: #5b636b;
   --pewter: #9aa5af;
   --silver: #d6dde4;
   --accent-gradient: linear-gradient(100deg, #eef3f7 0%, #a8b3bd 55%, #cfd8df 100%);
@@ -35,7 +37,9 @@
   --color-ink-2: var(--ink-2);
   --color-panel: var(--panel);
   --color-line: var(--line);
+  --color-line-2: var(--line-2);
   --color-paper: var(--paper);
+  --color-muted-2: var(--muted-2);
   --color-pewter: var(--pewter);
   --color-silver: var(--silver);
 

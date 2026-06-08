@@ -1,6 +1,9 @@
 import type { Metadata } from "next";
 import { Archivo, Fraunces } from "next/font/google";
+import { AuthGate } from "@/components/auth/auth-gate";
+import { AuthProvider } from "@/components/auth/auth-provider";
 import { GrainOverlay } from "@/components/grain-overlay";
+import { StoreProvider } from "@/lib/data/store-provider";
 import "./globals.css";
 
 const fraunces = Fraunces({
@@ -33,7 +36,11 @@ export default function RootLayout({
     >
       <body className="min-h-full bg-ink font-body text-paper antialiased">
         <GrainOverlay />
-        {children}
+        <AuthProvider>
+          <AuthGate>
+            <StoreProvider>{children}</StoreProvider>
+          </AuthGate>
+        </AuthProvider>
       </body>
     </html>
   );

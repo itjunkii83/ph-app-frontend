@@ -5,7 +5,7 @@ import { useRouter } from "next/navigation";
 import { PresentationPlayer, type Presentation } from "@harbor/player";
 import { uiConfig } from "@/lib/config";
 import { getMotivation } from "@/lib/session";
-import { getPresentation } from "@/lib/presentations";
+import { getPresentation, getLatestPresentation } from "@/lib/presentations";
 import { useSession } from "@/lib/use-session";
 
 // The moment: a chromeless, full-viewport takeover. The in-route Begin tap is the
@@ -24,24 +24,39 @@ export default function PlayPage() {
   const presentationId = moment?.config.presentationId;
 
   const [presentation, setPresentation] = useState<Presentation | null>(null);
-  const [phase, setPhase] = useState<Phase>(presentationId ? "loading" : "error");
+  const [phase, setPhase] = useState<Phase>("loading");
 
   useEffect(() => {
-    if (!presentationId) return;
     let cancelled = false;
-    getPresentation(presentationId)
-      .then((p) => {
+    setPhase("loading");
+    (async () => {
+      try {
+        // Pinned id wins; otherwise fall back to the latest studio presentation.
+        const p = presentationId
+          ? await getPresentation(presentationId)
+          : await getLatestPresentation();
         if (cancelled) return;
         if (p) {
           setPresentation(p);
           setPhase("ready");
         } else {
+          console.warn(
+            `[/play] no presentation found (${
+              presentationId
+                ? `id: ${presentationId}`
+                : "no presentationId set; looked for the latest in the presentations collection"
+            })`,
+          );
           setPhase("error");
         }
-      })
-      .catch(() => {
-        if (!cancelled) setPhase("error");
-      });
+      } catch (err) {
+        if (cancelled) return;
+        // Most commonly a Firestore permission error: the `presentations` read
+        // rule in firestore.rules has not been deployed to the project yet.
+        console.error("[/play] failed to load presentation:", err);
+        setPhase("error");
+      }
+    })();
     return () => {
       cancelled = true;
     };

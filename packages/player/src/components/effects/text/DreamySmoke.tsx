@@ -1,12 +1,13 @@
 'use client';
 
 import React, { useRef, useCallback } from 'react';
-import { EffectProps, EffectDefinition, ConfigSchema } from '@/types/effects';
-import { useEffectLifecycle } from '@/hooks/useEffectLifecycle';
-import { SPEED_MULTIPLIERS, SpeedOption } from '@/lib/effects/speed';
-import { useFonts } from '@/hooks/useFonts';
-import { useKenBurns } from '@/hooks/useKenBurns';
-import { kenBurnsConfigField, KenBurnsDirection } from '@/lib/effects/kenBurnsConfig';
+import { EffectProps, EffectDefinition, ConfigSchema } from '../../../types/effects';
+import { useEffectLifecycle } from '../../../hooks/useEffectLifecycle';
+import { SPEED_MULTIPLIERS, SpeedOption } from '../../../lib/effects/speed';
+import { useFonts } from '../../../hooks/useFonts';
+import { useKenBurns } from '../../../hooks/useKenBurns';
+import { kenBurnsConfigField, KenBurnsDirection } from '../../../lib/effects/kenBurnsConfig';
+import { cqFontSize, useBaseCanvas } from '../../../lib/responsive';
 import gsap from 'gsap';
 import { SplitText } from 'gsap/SplitText';
 
@@ -98,6 +99,7 @@ const configSchema: ConfigSchema = {
 };
 
 export function DreamySmoke({ config, isActive, onComplete, durationMs }: EffectProps) {
+  const base = useBaseCanvas();
   const text = config.text || '';
   const fontFamily = config.fontFamily || 'Playfair Display';
   const fontSize = config.fontSize ?? 64;
@@ -151,7 +153,7 @@ export function DreamySmoke({ config, isActive, onComplete, durationMs }: Effect
         opacity: 1,
         y: 0,
         filter: 'blur(0.5px)',
-        textShadow: `0 0 2vmin ${glowColor}`,
+        textShadow: `0 0 2cqmin ${glowColor}`,
         duration: 0.8 * multiplier,
         ease: 'power2.out',
       }
@@ -236,7 +238,7 @@ export function DreamySmoke({ config, isActive, onComplete, durationMs }: Effect
           ref={textRef}
           style={{
             fontFamily,
-            fontSize: `${fontSize}px`,
+            fontSize: cqFontSize(fontSize, base),
             fontWeight,
             fontStyle,
             color,

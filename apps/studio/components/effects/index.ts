@@ -1,22 +1,14 @@
-import { registerEffect } from './registry';
-import { backgroundImageDefinition } from './backgrounds';
-import { basicTextDefinition, dreamySmokeDefinition, maskedTextRevealDefinition } from './text';
-import { cloudyBackgroundDefinition } from './ambient';
-import { kenBurnsImageDefinition } from './image';
+// Shim: effects now live in @harbor/player and self-register via registerEffects.
+// The studio imports this module (directly or for its side effect) to ensure all
+// effects are registered, then re-exports the registry API.
+import { registerEffects } from "@harbor/player";
 
-// Register all effects (side-effect import)
-registerEffect(backgroundImageDefinition);
-registerEffect(basicTextDefinition);
-registerEffect(dreamySmokeDefinition);
-registerEffect(cloudyBackgroundDefinition);
-registerEffect(kenBurnsImageDefinition);
-registerEffect(maskedTextRevealDefinition);
+registerEffects();
 
-// Re-export registry functions
 export {
   registerEffect,
   getEffect,
   getAllEffects,
   getEffectsByCategory,
   getEffectComponent,
-} from './registry';
+} from "@harbor/player";

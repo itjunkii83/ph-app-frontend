@@ -1,7 +1,7 @@
 'use client';
 
 import React from 'react';
-import { EffectProps, EffectDefinition, ConfigSchema } from '@/types/effects';
+import { EffectProps, EffectDefinition, ConfigSchema } from '../../../types/effects';
 
 const configSchema: ConfigSchema = {
   src: {

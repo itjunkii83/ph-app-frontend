@@ -1,4 +1,4 @@
-import { ConfigFieldSchema } from '@/types/effects';
+import { ConfigFieldSchema } from '../../types/effects';
 
 export const kenBurnsConfigField: Record<string, ConfigFieldSchema> = {
   kenBurns: {

@@ -2,7 +2,7 @@
 
 import { useRef, useEffect } from 'react';
 import gsap from 'gsap';
-import { KenBurnsDirection } from '@/lib/effects/kenBurnsConfig';
+import { KenBurnsDirection } from '../lib/effects/kenBurnsConfig';
 
 interface UseKenBurnsOptions {
   direction: KenBurnsDirection;

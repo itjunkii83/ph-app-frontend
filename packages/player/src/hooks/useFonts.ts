@@ -1,18 +1,32 @@
-'use client';
+"use client";
 
-import { useState, useEffect } from 'react';
-import { ManagedFont } from '@/types/fonts';
-import { loadFonts } from '@/lib/fonts/loader';
+import { useState, useEffect } from "react";
+import { ManagedFont } from "../types/fonts";
+import { loadFonts } from "../lib/fonts/loader";
+import { useManagedFonts } from "../fonts/fonts-context";
 
 const DEFAULT_FONTS: ManagedFont[] = [
-  { family: 'Inter', source: 'google', weights: [400, 500, 600, 700], styles: ['normal'] },
-  { family: 'Georgia', source: 'system', weights: [400, 700], styles: ['normal', 'italic'] },
+  { family: "Inter", source: "google", weights: [400, 500, 600, 700], styles: ["normal"] },
+  { family: "Georgia", source: "system", weights: [400, 700], styles: ["normal", "italic"] },
 ];
 
+/**
+ * Loads the given font families. Managed-font metadata comes from
+ * ManagedFontsContext (the player provides it), NOT from a prop or a /api/fonts
+ * fetch: this hook runs inside individual effects, so a network/app coupling here
+ * would break the Next-agnostic boundary. Unknown families fall back to a direct
+ * Google Fonts load.
+ */
 export function useFonts(fontFamilies: string[]) {
+  const managedFonts = useManagedFonts();
   const [loading, setLoading] = useState(true);
   const [loaded, setLoaded] = useState<string[]>([]);
   const [error, setError] = useState<string | null>(null);
+
+  // Stable signature so an unmemoized context array doesn't re-run the effect.
+  const managedKey = managedFonts
+    .map((f) => `${f.family}:${(f.weights || []).join("|")}:${f.isActive !== false}`)
+    .join(",");
 
   useEffect(() => {
     if (fontFamilies.length === 0) {
@@ -25,13 +39,10 @@ export function useFonts(fontFamilies: string[]) {
 
     (async () => {
       try {
-        const res = await fetch('/api/fonts');
-        const managedFonts: ManagedFont[] = res.ok ? await res.json() : [];
-
         const fontsToLoad: ManagedFont[] = [];
         for (const family of fontFamilies) {
           const managed = managedFonts.find(
-            (f) => f.family === family && f.isActive !== false
+            (f) => f.family === family && f.isActive !== false,
           );
           if (managed) {
             fontsToLoad.push(managed);
@@ -42,9 +53,9 @@ export function useFonts(fontFamilies: string[]) {
             } else {
               fontsToLoad.push({
                 family,
-                source: 'google',
+                source: "google",
                 weights: [400],
-                styles: ['normal'],
+                styles: ["normal"],
               });
             }
           }
@@ -58,7 +69,7 @@ export function useFonts(fontFamilies: string[]) {
         }
       } catch (err) {
         if (!cancelled) {
-          setError(err instanceof Error ? err.message : 'Failed to load fonts');
+          setError(err instanceof Error ? err.message : "Failed to load fonts");
           setLoading(false);
         }
       }
@@ -67,7 +78,8 @@ export function useFonts(fontFamilies: string[]) {
     return () => {
       cancelled = true;
     };
-  }, [fontFamilies.join(',')]);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [fontFamilies.join(","), managedKey]);
 
   return { loading, loaded, error };
 }

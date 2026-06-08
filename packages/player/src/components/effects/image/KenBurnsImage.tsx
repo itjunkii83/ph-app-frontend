@@ -1,9 +1,9 @@
 'use client';
 
 import React, { useRef } from 'react';
-import { EffectProps, EffectDefinition, ConfigSchema } from '@/types/effects';
-import { useEffectLifecycle } from '@/hooks/useEffectLifecycle';
-import { SPEED_MULTIPLIERS, SpeedOption } from '@/lib/effects/speed';
+import { EffectProps, EffectDefinition, ConfigSchema } from '../../../types/effects';
+import { useEffectLifecycle } from '../../../hooks/useEffectLifecycle';
+import { SPEED_MULTIPLIERS, SpeedOption } from '../../../lib/effects/speed';
 import gsap from 'gsap';
 
 const configSchema: ConfigSchema = {

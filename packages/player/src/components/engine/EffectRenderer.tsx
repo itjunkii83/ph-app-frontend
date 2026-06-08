@@ -1,9 +1,9 @@
 'use client';
 
 import React from 'react';
-import { Layer } from '@/types/presentation';
-import { getEffect, getEffectComponent } from '@/components/effects/registry';
-import { calculateReadingDuration } from '@/lib/duration';
+import { Layer } from '../../types/presentation';
+import { getEffect, getEffectComponent } from '../../components/effects/registry';
+import { calculateReadingDuration } from '../../lib/duration';
 
 interface EffectRendererProps {
   layer: Layer;

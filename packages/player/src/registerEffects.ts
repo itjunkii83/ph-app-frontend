@@ -1,0 +1,27 @@
+import { registerEffect } from "./components/effects/registry";
+import { backgroundImageDefinition } from "./components/effects/backgrounds";
+import {
+  basicTextDefinition,
+  dreamySmokeDefinition,
+  maskedTextRevealDefinition,
+} from "./components/effects/text";
+import { cloudyBackgroundDefinition } from "./components/effects/ambient";
+import { kenBurnsImageDefinition } from "./components/effects/image";
+
+let registered = false;
+
+/**
+ * The single registration entry point. Idempotent: guarantees every bundled
+ * effect is in the registry before first render. Called at the module top of
+ * PresentationPlayer and by the studio editor before it reads the registry.
+ */
+export function registerEffects(): void {
+  if (registered) return;
+  registered = true;
+  registerEffect(backgroundImageDefinition);
+  registerEffect(basicTextDefinition);
+  registerEffect(dreamySmokeDefinition);
+  registerEffect(cloudyBackgroundDefinition);
+  registerEffect(kenBurnsImageDefinition);
+  registerEffect(maskedTextRevealDefinition);
+}

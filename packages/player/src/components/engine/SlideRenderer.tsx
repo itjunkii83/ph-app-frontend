@@ -1,7 +1,7 @@
 'use client';
 
 import React from 'react';
-import { Slide } from '@/types/presentation';
+import { Slide } from '../../types/presentation';
 import { LayerRenderer } from './LayerRenderer';
 
 interface SlideRendererProps {

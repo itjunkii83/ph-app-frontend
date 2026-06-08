@@ -1,10 +1,11 @@
 'use client';
 
 import React from 'react';
-import { EffectProps, EffectDefinition, ConfigSchema } from '@/types/effects';
-import { useFonts } from '@/hooks/useFonts';
-import { useKenBurns } from '@/hooks/useKenBurns';
-import { kenBurnsConfigField, KenBurnsDirection } from '@/lib/effects/kenBurnsConfig';
+import { EffectProps, EffectDefinition, ConfigSchema } from '../../../types/effects';
+import { useFonts } from '../../../hooks/useFonts';
+import { useKenBurns } from '../../../hooks/useKenBurns';
+import { kenBurnsConfigField, KenBurnsDirection } from '../../../lib/effects/kenBurnsConfig';
+import { cqFontSize, useBaseCanvas } from '../../../lib/responsive';
 
 const configSchema: ConfigSchema = {
   text: {
@@ -73,6 +74,7 @@ const configSchema: ConfigSchema = {
 };
 
 export function BasicText({ config, durationMs }: EffectProps) {
+  const base = useBaseCanvas();
   const text = config.text || '';
   const fontFamily = config.fontFamily || 'Lato';
 
@@ -108,7 +110,7 @@ export function BasicText({ config, durationMs }: EffectProps) {
         <div
           style={{
             fontFamily,
-            fontSize: `${fontSize}px`,
+            fontSize: cqFontSize(fontSize, base),
             fontWeight,
             color,
             textAlign,

@@ -1,12 +1,13 @@
 'use client';
 
 import React, { useRef, useCallback } from 'react';
-import { EffectProps, EffectDefinition, ConfigSchema } from '@/types/effects';
-import { useEffectLifecycle } from '@/hooks/useEffectLifecycle';
-import { SPEED_MULTIPLIERS, SpeedOption } from '@/lib/effects/speed';
-import { useFonts } from '@/hooks/useFonts';
-import { useKenBurns } from '@/hooks/useKenBurns';
-import { kenBurnsConfigField, KenBurnsDirection } from '@/lib/effects/kenBurnsConfig';
+import { EffectProps, EffectDefinition, ConfigSchema } from '../../../types/effects';
+import { useEffectLifecycle } from '../../../hooks/useEffectLifecycle';
+import { SPEED_MULTIPLIERS, SpeedOption } from '../../../lib/effects/speed';
+import { useFonts } from '../../../hooks/useFonts';
+import { useKenBurns } from '../../../hooks/useKenBurns';
+import { kenBurnsConfigField, KenBurnsDirection } from '../../../lib/effects/kenBurnsConfig';
+import { cqFontSize, useBaseCanvas } from '../../../lib/responsive';
 import gsap from 'gsap';
 import { SplitText } from 'gsap/SplitText';
 
@@ -85,6 +86,7 @@ const configSchema: ConfigSchema = {
 };
 
 export function MaskedTextReveal({ config, isActive, onComplete, durationMs }: EffectProps) {
+  const base = useBaseCanvas();
   const text = config.text || '';
   const fontFamily = config.fontFamily || 'Lato';
   const fontSize = config.fontSize ?? 48;
@@ -222,7 +224,7 @@ export function MaskedTextReveal({ config, isActive, onComplete, durationMs }: E
           ref={textRef}
           style={{
             fontFamily,
-            fontSize: `${fontSize}px`,
+            fontSize: cqFontSize(fontSize, base),
             color,
             textAlign,
             lineHeight: 1.4,

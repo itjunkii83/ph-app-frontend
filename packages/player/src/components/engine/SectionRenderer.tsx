@@ -1,7 +1,7 @@
 'use client';
 
 import React, { useMemo } from 'react';
-import { Section, Slide } from '@/types/presentation';
+import { Section, Slide } from '../../types/presentation';
 import { LayerRenderer } from './LayerRenderer';
 import { SlideRenderer } from './SlideRenderer';
 

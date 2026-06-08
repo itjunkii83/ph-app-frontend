@@ -1,8 +1,9 @@
 'use client';
 
 import React from 'react';
-import { Layer } from '@/types/presentation';
+import { Layer } from '../../types/presentation';
 import { EffectRenderer } from './EffectRenderer';
+import { cqLength, useBaseCanvas } from '../../lib/responsive';
 
 interface LayerRendererProps {
   layer: Layer;
@@ -10,6 +11,7 @@ interface LayerRendererProps {
 }
 
 export function LayerRenderer({ layer, isActive }: LayerRendererProps) {
+  const base = useBaseCanvas();
   if (!layer.visible) return null;
 
   const isFullSize =
@@ -26,10 +28,13 @@ export function LayerRenderer({ layer, isActive }: LayerRendererProps) {
     ...(isFullSize
       ? { inset: 0 }
       : {
-          left: `${layer.position.x}${layer.position.unit}`,
-          top: `${layer.position.y}${layer.position.unit}`,
-          width: `${layer.size.width}${layer.size.unit}`,
-          height: `${layer.size.height}${layer.size.unit}`,
+          // Authored px are proportions of the base canvas, emitted as
+          // container-relative units so the composition reflows to the live
+          // container's aspect rather than scaling a fixed frame.
+          left: cqLength(layer.position.x, layer.position.unit, 'x', base),
+          top: cqLength(layer.position.y, layer.position.unit, 'y', base),
+          width: cqLength(layer.size.width, layer.size.unit, 'x', base),
+          height: cqLength(layer.size.height, layer.size.unit, 'y', base),
         }),
   };
 

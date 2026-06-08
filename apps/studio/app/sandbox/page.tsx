@@ -6,11 +6,11 @@ import { useSearchParams } from 'next/navigation';
 // Side-effect import: registers all effects in the registry
 import '@/components/effects';
 
-import { SectionRenderer } from '@/components/engine';
+import { SectionRenderer, PresentationStage, useFonts } from '@harbor/player';
 import { PresentationToolbar } from '@/components/debug/PresentationToolbar';
 import { DebugControlsV2 } from '@/components/debug/DebugControlsV2';
 import { usePresentationEditor } from '@/hooks/usePresentationEditor';
-import { useFonts } from '@/hooks/useFonts';
+import { StudioFontsProvider } from '@/components/fonts/studio-fonts-provider';
 
 function SandboxEditor() {
   const searchParams = useSearchParams();
@@ -74,13 +74,15 @@ function SandboxEditor() {
       <div style={{ display: 'flex', flex: 1, overflow: 'hidden' }}>
         <div style={{ flex: 1, position: 'relative', overflow: 'hidden', background: '#000' }}>
           {!fontsLoading && editor.currentSection && (
-            <SectionRenderer
-              key={`section-${editor.currentSection.id}`}
-              section={editor.currentSection}
-              activeSlideIndex={editor.currentSlideIndex}
-              isActive={true}
-              playKey={editor.playKey}
-            />
+            <PresentationStage>
+              <SectionRenderer
+                key={`section-${editor.currentSection.id}`}
+                section={editor.currentSection}
+                activeSlideIndex={editor.currentSlideIndex}
+                isActive={true}
+                playKey={editor.playKey}
+              />
+            </PresentationStage>
           )}
         </div>
         <DebugControlsV2
@@ -126,7 +128,9 @@ export default function SandboxPage() {
         </div>
       }
     >
-      <SandboxEditor />
+      <StudioFontsProvider>
+        <SandboxEditor />
+      </StudioFontsProvider>
     </Suspense>
   );
 }

@@ -24,7 +24,8 @@
         "attribution": "Marcus Aurelius",
         "backgroundTheme": "storm-water",
         "filmPlaceholder": true,
-        "ctaLabel": "Play today's hype"
+        "ctaLabel": "Play today's hype",
+        "presentationId": ""
       }
     },
     {

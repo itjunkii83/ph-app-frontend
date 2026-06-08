@@ -1,0 +1,16 @@
+rules_version = '2';
+
+// Presentation media (background/Ken Burns images, audio tracks) referenced by
+// presentation JSON. Any signed-in user may read so the toolkit can render
+// today's moment cross-app. Writes are studio/admin-only (uploaded via the
+// admin SDK or the Firebase console), so no client write rule is granted.
+//
+// Deploy: `firebase deploy --only storage` (with firebase.json configured), or
+// paste into Firebase Console (Storage > Rules) and Publish.
+service firebase.storage {
+  match /b/{bucket}/o {
+    match /presentations/{allPaths=**} {
+      allow read: if request.auth != null;
+    }
+  }
+}

@@ -20,6 +20,10 @@ export interface MotivationConfig {
   backgroundTheme: string;
   filmPlaceholder: boolean;
   ctaLabel: string;
+  // Firestore `presentations` doc id for today's moment. When set, the step-zero
+  // CTA opens the full-screen /play route; when empty, the storm-gradient
+  // placeholder shows and the runner's Next advances.
+  presentationId?: string;
 }
 
 export interface ListConfig {

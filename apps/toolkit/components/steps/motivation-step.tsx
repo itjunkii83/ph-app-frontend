@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useRef, useState } from "react";
+import { useRouter } from "next/navigation";
 import { Play } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import type { ModuleOf } from "@/lib/types";
@@ -23,6 +24,7 @@ export function MotivationStep({
   const { mood, quote, attribution, ctaLabel } = module.config;
   const [pulse, setPulse] = useState(0);
   const timerRef = useRef(0);
+  const router = useRouter();
 
   useEffect(() => () => window.clearTimeout(timerRef.current), []);
 
@@ -30,6 +32,17 @@ export function MotivationStep({
     window.clearTimeout(timerRef.current);
     setPulse((p) => p + 1);
     timerRef.current = window.setTimeout(() => setPulse(0), 1700);
+  }
+
+  // With a presentation configured, the CTA only navigates to the full-screen
+  // /play takeover (the real Begin gesture lives there). Otherwise it falls back
+  // to the placeholder sheen and the runner's Next advances.
+  function onCta() {
+    if (module.config.presentationId) {
+      router.push("/play");
+      return;
+    }
+    playHype();
   }
 
   return (
@@ -67,7 +80,7 @@ export function MotivationStep({
         <p className="mt-4 text-xs text-pewter">{attribution}</p>
         <Button
           variant="outline"
-          onClick={playHype}
+          onClick={onCta}
           className="mt-10 h-10 gap-2 border-line bg-white/5 px-4 text-paper hover:bg-white/10 hover:text-paper dark:bg-white/5 dark:hover:bg-white/10"
         >
           <Play className="size-4" />

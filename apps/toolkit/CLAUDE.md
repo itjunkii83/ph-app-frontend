@@ -2,6 +2,13 @@
 
 This file provides guidance to Claude Code (claude.ai/code) when working with code in this repository.
 
+> **Monorepo:** this app is `apps/toolkit` (package `wisdom-toolkit`) in a pnpm
+> workspace. Run it from the repo root with `pnpm --filter wisdom-toolkit dev`.
+> Playback (the renderer + effects) lives in the shared `@harbor/player` package,
+> not here. The motivation moment plays via `@harbor/player` on the chromeless
+> `/play` route, fed by today's presentation read from Firestore
+> (`lib/presentations.ts`). See the root `CLAUDE.md` for the workspace overview.
+
 ## Commands
 
 Use pnpm only, never npm.

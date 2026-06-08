@@ -53,7 +53,9 @@ export function SectionRenderer({
         width: '100%',
         height: '100%',
         overflow: 'hidden',
-        background: '#000',
+        // Transparent so a crossfading previous section shows through while this
+        // section's background fades in (no black between sections).
+        background: 'transparent',
       }}
     >
       {/* Stage Layers - persist across slides, render behind slide content */}

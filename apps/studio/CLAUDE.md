@@ -4,6 +4,15 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 > **Important:** Read `VISION.md` for product direction, architecture decisions, and the phased implementation plan. That document describes WHERE we're going. This document describes WHAT EXISTS today.
 
+> **Monorepo:** this app is `apps/studio` (package `wisdom`) in a pnpm workspace.
+> Run it from the repo root with `pnpm --filter wisdom dev`. The playback subsystem
+> (the renderer in `components/engine`, the effects, their hooks, duration, and the
+> font loader) has moved into the shared `@harbor/player` package; this app keeps
+> only authoring (sandbox, `/admin`, firebase-admin, dnd-kit) and consumes the
+> player through thin re-export shims at the old `@/types/*`,
+> `@/components/effects/*`, `@/lib/duration`, and `@/lib/fonts/loader` paths. Media
+> uploads go to Firebase Storage via `app/api/media`. See the root `CLAUDE.md`.
+
 ## Commands
 
 ```bash

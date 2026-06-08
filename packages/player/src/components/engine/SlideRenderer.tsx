@@ -62,7 +62,10 @@ export function SlideRenderer({
         width: '100%',
         height: '100%',
         overflow: 'hidden',
-        background: '#000',
+        // Transparent so the persistent stage background (and crossfading
+        // sections beneath) show through during slide/section changes; the
+        // PresentationStage provides the black floor.
+        background: 'transparent',
       }}
     >
       {sortedLayers.map((layer) => (

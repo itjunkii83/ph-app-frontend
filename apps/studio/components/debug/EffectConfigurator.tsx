@@ -17,6 +17,7 @@ import {
   SelectValue,
 } from '@/components/ui/select';
 import { Separator } from '@/components/ui/separator';
+import { StorageImagePicker } from '@/components/debug/StorageImagePicker';
 
 interface EffectConfiguratorProps {
   effectType: string;
@@ -42,8 +43,6 @@ const BLEND_MODES = [
   'difference',
   'exclusion',
 ];
-
-const IMAGE_PRESETS = ['/effects/bg.jpg', '/effects/inspiring.png', '/effects/stormy.png'];
 
 function FieldControl({
   fieldKey,
@@ -147,32 +146,11 @@ function FieldControl({
 
     case 'image':
       return (
-        <div className="space-y-1.5">
-          <Label className="text-xs">{schema.label}</Label>
-          <Input
-            value={value ?? schema.default ?? ''}
-            onChange={(e) => onChange(e.target.value)}
-            placeholder="Image URL"
-            className="text-sm h-9 mb-1"
-          />
-          <div className="flex gap-1 flex-wrap">
-            {IMAGE_PRESETS.map((src) => (
-              <button
-                key={src}
-                onClick={() => onChange(src)}
-                className={`w-12 h-9 rounded-md overflow-hidden bg-black p-0 cursor-pointer border-2 ${
-                  value === src ? 'border-primary' : 'border-input'
-                }`}
-              >
-                <img
-                  src={src}
-                  alt=""
-                  className="w-full h-full object-cover"
-                />
-              </button>
-            ))}
-          </div>
-        </div>
+        <StorageImagePicker
+          label={schema.label}
+          value={value ?? schema.default ?? ''}
+          onChange={onChange}
+        />
       );
 
     case 'font':

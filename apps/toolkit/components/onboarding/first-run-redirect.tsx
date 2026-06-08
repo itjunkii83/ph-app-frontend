@@ -16,6 +16,11 @@ export function FirstRunRedirect() {
     if (!hydrated) return;
     if (value.completed) return;
     if (pathname === "/onboarding") return;
+    // /play is a full-screen moment reached from inside the session (post
+    // onboarding). On a direct load its store value can still read the default
+    // for a render while `hydrated` is already true, so exempt it to avoid a
+    // spurious bounce; the value reconciles before it returns to /practice.
+    if (pathname === "/play") return;
     router.replace("/onboarding");
   }, [hydrated, value.completed, pathname, router]);
 

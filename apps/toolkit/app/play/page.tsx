@@ -2,7 +2,11 @@
 
 import { useCallback, useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
-import { PresentationPlayer, type Presentation } from "@harbor/player";
+import {
+  PresentationPlayer,
+  preloadPresentationMedia,
+  type Presentation,
+} from "@harbor/player";
 import { uiConfig } from "@/lib/config";
 import { getMotivation } from "@/lib/session";
 import { getPresentation, getLatestPresentation } from "@/lib/presentations";
@@ -25,10 +29,13 @@ export default function PlayPage() {
 
   const [presentation, setPresentation] = useState<Presentation | null>(null);
   const [phase, setPhase] = useState<Phase>("loading");
+  const [progress, setProgress] = useState<{ loaded: number; total: number }>({
+    loaded: 0,
+    total: 0,
+  });
 
   useEffect(() => {
     let cancelled = false;
-    setPhase("loading");
     (async () => {
       try {
         // Pinned id wins; otherwise fall back to the latest studio presentation.
@@ -36,10 +43,7 @@ export default function PlayPage() {
           ? await getPresentation(presentationId)
           : await getLatestPresentation();
         if (cancelled) return;
-        if (p) {
-          setPresentation(p);
-          setPhase("ready");
-        } else {
+        if (!p) {
           console.warn(
             `[/play] no presentation found (${
               presentationId
@@ -48,7 +52,16 @@ export default function PlayPage() {
             })`,
           );
           setPhase("error");
+          return;
         }
+        // Buffer all media (images + audio) before enabling Begin, so the moment
+        // plays instantly with no black-frame pop-in between slides.
+        await preloadPresentationMedia(p, (loaded, total) => {
+          if (!cancelled) setProgress({ loaded, total });
+        });
+        if (cancelled) return;
+        setPresentation(p);
+        setPhase("ready");
       } catch (err) {
         if (cancelled) return;
         // Most commonly a Firestore permission error: the `presentations` read
@@ -76,7 +89,7 @@ export default function PlayPage() {
       ) : phase === "error" ? (
         <div className="flex flex-col items-center gap-6 px-8 text-center">
           <p className="max-w-xs text-sm text-pewter">
-            Today's moment is not ready to play.
+            {"Today's moment is not ready to play."}
           </p>
           <button
             type="button"
@@ -86,26 +99,44 @@ export default function PlayPage() {
             Continue
           </button>
         </div>
-      ) : (
+      ) : phase === "ready" ? (
         <button
           type="button"
-          onClick={() => phase === "ready" && setPhase("playing")}
-          disabled={phase !== "ready"}
-          aria-label={phase === "ready" ? "Begin the moment" : "Loading the moment"}
-          className="flex size-28 items-center justify-center rounded-full border border-line text-sm transition disabled:cursor-default"
-          style={
-            phase === "ready"
-              ? { background: "var(--accent-gradient)" }
-              : undefined
-          }
+          onClick={() => setPhase("playing")}
+          aria-label="Begin the moment"
+          className="flex size-28 items-center justify-center rounded-full border border-line text-sm font-medium transition"
+          style={{ background: "var(--accent-gradient)", color: "#0a0b0d" }}
         >
-          <span
-            className={phase === "ready" ? "font-medium" : "text-pewter"}
-            style={phase === "ready" ? { color: "#0a0b0d" } : undefined}
-          >
-            {phase === "ready" ? "Begin" : "..."}
-          </span>
+          Begin
         </button>
+      ) : (
+        <div className="flex w-64 max-w-[80vw] flex-col items-center gap-3">
+          <div
+            className="h-1.5 w-full overflow-hidden rounded-full border border-line bg-ink-2"
+            role="progressbar"
+            aria-label="Buffering the moment"
+            aria-valuemin={0}
+            aria-valuemax={progress.total || 1}
+            aria-valuenow={progress.loaded}
+          >
+            <div
+              className="h-full rounded-full transition-all duration-300 ease-out"
+              style={{
+                width: `${
+                  progress.total > 0
+                    ? (progress.loaded / progress.total) * 100
+                    : 8
+                }%`,
+                background: "var(--accent-gradient)",
+              }}
+            />
+          </div>
+          <p className="text-xs tabular-nums text-pewter">
+            {progress.total > 0
+              ? `Loading ${progress.loaded} / ${progress.total}`
+              : "Loading..."}
+          </p>
+        </div>
       )}
     </div>
   );

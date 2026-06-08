@@ -42,6 +42,9 @@ export {
   getFlatIndex,
 } from "./lib/presentation/normalize";
 
+// Media preloading (buffer a presentation before playback).
+export { preloadPresentationMedia, preloadImage } from "./lib/preload";
+
 // Duration + font loading utilities.
 export { calculateReadingDuration, getTextStats } from "./lib/duration";
 export { loadFont, loadFonts } from "./lib/fonts/loader";

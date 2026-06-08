@@ -149,10 +149,6 @@ export const VELOCITY_ITERATIONS = 8;
 export const ORBIT_SPEED = 0.0072; // shared angular speed for the orbit ring
 export const PYRAMID_GAP = 6;
 export const SPAWN_GAP = 230; // faucet: ms between dropping parents
-// Caps the parent bubble radius so bubbles stay tasteful as the frame grows on
-// desktop. At phone width (430px) the computed radius (~47px) is under the cap,
-// so the layout is identical to the prototype; the cap only engages wider.
-export const PARENT_R_CAP = 56;
 
 // What the onboarding collects. Persisted per user through the store.
 export type PickKind = "parent" | "child";

@@ -2,7 +2,9 @@ import type { Metadata } from "next";
 import { Archivo, Fraunces } from "next/font/google";
 import { AuthGate } from "@/components/auth/auth-gate";
 import { AuthProvider } from "@/components/auth/auth-provider";
+import { DevLauncher } from "@/components/dev/dev-launcher";
 import { GrainOverlay } from "@/components/grain-overlay";
+import { FirstRunRedirect } from "@/components/onboarding/first-run-redirect";
 import { StoreProvider } from "@/lib/data/store-provider";
 import "./globals.css";
 
@@ -38,7 +40,11 @@ export default function RootLayout({
         <GrainOverlay />
         <AuthProvider>
           <AuthGate>
-            <StoreProvider>{children}</StoreProvider>
+            <StoreProvider>
+              <FirstRunRedirect />
+              {children}
+              {process.env.NODE_ENV === "development" && <DevLauncher />}
+            </StoreProvider>
           </AuthGate>
         </AuthProvider>
       </body>

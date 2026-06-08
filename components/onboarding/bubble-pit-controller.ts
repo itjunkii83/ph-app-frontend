@@ -12,7 +12,6 @@ import type { Body, Engine, World } from "matter-js";
 import {
   GRAVITY_Y,
   ORBIT_SPEED,
-  PARENT_R_CAP,
   POSITION_ITERATIONS,
   PYRAMID_GAP,
   SPAWN_GAP,
@@ -230,13 +229,11 @@ export class BubblePitController {
   }
 
   // Pyramid math: four across the base sets the size, kept to ~92% of the pit.
-  // r = (0.92*W - 3*gap) / 8, capped so bubbles stay tasteful on wide desktops.
+  // r = (0.92*W - 3*gap) / 8. Identical to the prototype (no cap): the frame is
+  // locked to phone width, so the pit width and bubble sizes never change.
   private computeGeometry() {
     const g = PYRAMID_GAP;
-    this.parentR = Math.max(
-      26,
-      Math.min(PARENT_R_CAP, (this.w * 0.92 - 3 * g) / 8),
-    );
+    this.parentR = Math.max(26, (this.w * 0.92 - 3 * g) / 8);
     this.childR = Math.max(24, this.parentR * 0.74);
     const r = this.parentR;
     const cell = 2 * r + g;
@@ -419,16 +416,38 @@ export class BubblePitController {
       this.Matter.Composite.remove(this.world, p.body);
       p.body = null;
     }
-    const focusR = p.poolR * 1.4;
-    const childR = focusR * 0.68;
+
+    // Natural (mobile) open sizes.
+    let focusR = p.poolR * 1.4;
+    let childR = focusR * 0.68;
+    let orbitRt = focusR + childR + 14;
+
+    // Keep the open cluster clear of the resting pyramid below. On a tall pit
+    // (mobile) there is ample room, scale is 1, and this is byte-identical to
+    // the prototype. On a short pit (desktop with limited height) the cluster
+    // scales down just enough to avoid colliding with the pile.
+    const topMargin = 14;
+    const clearance = 16;
+    const r = this.parentR;
+    const dyRow = ((2 * r + PYRAMID_GAP) * Math.sqrt(3)) / 2;
+    const pyramidTopEdge = this.h - 2 * r - 14 - dyRow; // highest pixel of the pile
+    const available = pyramidTopEdge - clearance - topMargin;
+    const clusterDiameter = 2 * (orbitRt + childR);
+    if (clusterDiameter > available && available > 0) {
+      const scale = Math.max(0.55, available / clusterDiameter);
+      focusR *= scale;
+      childR *= scale;
+      orbitRt = focusR + childR + 14 * scale;
+    }
+
     p.mode = "dock";
     p.open = true;
     this.openP = p;
     p.targetR = focusR;
     p.orbitChildR = childR;
-    p.orbitRt = focusR + childR + 14;
+    p.orbitRt = orbitRt;
     p.dockX = this.w / 2;
-    p.dockY = p.orbitRt + childR + 14;
+    p.dockY = topMargin + orbitRt + childR; // orbit top sits at topMargin
     p.orbitPhase = 0;
     p.orbitR = 0;
     this.selected.add(p.label);

@@ -17,6 +17,10 @@
 }
 
 /* ---- phone frame ---- */
+/* The frame stays at phone dimensions on every screen so the bubble physics
+   renders exactly as it does on mobile. On a larger display it simply centers
+   with empty space around it (intentional: the look matters more than filling
+   the desktop). */
 .frame {
   position: relative;
   width: min(430px, 100vw);
@@ -28,13 +32,6 @@
   box-shadow:
     0 40px 120px rgba(0, 0, 0, 0.6),
     inset 0 0 0 1px rgba(255, 255, 255, 0.02);
-}
-@media (min-width: 1024px) {
-  .frame {
-    width: min(560px, 92vw);
-    height: min(980px, 94dvh);
-    border-radius: 44px;
-  }
 }
 @media (max-width: 480px) {
   .frame {
@@ -143,6 +140,20 @@
   flex: 1;
 }
 
+/* The bubbles screen trims its own chrome so the physics pit gets the most
+   height possible (matters on short desktop viewports). Other screens are
+   untouched, so the mobile look elsewhere is unchanged. */
+.screenBubbles {
+  padding-top: 78px;
+  padding-bottom: 20px;
+}
+.screenBubbles .eyebrow {
+  margin-bottom: 12px;
+}
+.screenBubbles .footerCta {
+  padding-top: 12px;
+}
+
 .eyebrow {
   font-size: 11px;
   letter-spacing: 0.26em;
@@ -165,6 +176,10 @@
   -webkit-background-clip: text;
   background-clip: text;
   color: transparent;
+  /* Italic glyphs lean past their box; widen the clip box so the last
+     character is not cut off, and cancel the layout shift. */
+  padding-right: 0.12em;
+  margin-right: -0.12em;
 }
 .q {
   font-family: var(--font-fraunces), Georgia, serif;
@@ -179,6 +194,8 @@
   -webkit-background-clip: text;
   background-clip: text;
   color: transparent;
+  padding-right: 0.12em;
+  margin-right: -0.12em;
 }
 .qTight {
   font-size: clamp(22px, 5.8vw, 28px);
@@ -291,7 +308,7 @@
   position: relative;
   flex: 1;
   min-height: 0;
-  margin: 14px 0 0;
+  margin: 8px 0 0;
   overflow: hidden;
 }
 .pit {
@@ -305,8 +322,8 @@
   display: flex;
   gap: 8px;
   overflow-x: auto;
-  padding: 14px 2px 4px;
-  min-height: 44px;
+  padding: 8px 2px 2px;
+  min-height: 40px;
   scrollbar-width: none;
 }
 .tray::-webkit-scrollbar {
@@ -373,6 +390,8 @@
   -webkit-background-clip: text;
   background-clip: text;
   color: transparent;
+  padding-right: 0.12em;
+  margin-right: -0.12em;
 }
 .themes {
   display: flex;

@@ -98,14 +98,11 @@ export function StoreProvider({ children }: { children: React.ReactNode }) {
     flushTimerRef.current = setTimeout(flush, FLUSH_DELAY_MS);
   }, [flush]);
 
-  // Load + live subscription, re-run when the user changes.
+  // Load + live subscription, re-run when the user changes. The provider only
+  // mounts under the authenticated branch, so uid is present in practice; the
+  // guard keeps types honest without resetting state synchronously here.
   useEffect(() => {
-    if (!uid) {
-      snapshotRef.current = new Map();
-      dirtyRef.current = new Map();
-      setHydrated(false);
-      return;
-    }
+    if (!uid) return;
 
     // Warm the snapshot synchronously from the mirror for an instant paint.
     snapshotRef.current = new Map();

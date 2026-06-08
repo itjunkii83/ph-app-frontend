@@ -21,8 +21,12 @@ export function useBubblePit(opts: {
   const { wrapRef, canvasRef, themes } = opts;
   const controllerRef = useRef<BubblePitController | null>(null);
   const onChangeRef = useRef(opts.onSelectionChange);
-  onChangeRef.current = opts.onSelectionChange;
   const initialRef = useRef(opts.initialSelection);
+
+  // Keep the controller's callback fresh without recreating it each render.
+  useEffect(() => {
+    onChangeRef.current = opts.onSelectionChange;
+  });
 
   useEffect(() => {
     const wrap = wrapRef.current;

@@ -32,6 +32,7 @@
       "type": "list",
       "title": "Prime: three things already going right",
       "sourceTag": "Peak state",
+      "lane": "practice",
       "config": {
         "prompt": "Name three. Energy starts from what is already working, not from what is missing.",
         "itemCount": 3,
@@ -44,6 +45,7 @@
       "type": "timed",
       "title": "Prime: see it happen",
       "sourceTag": "Mental rehearsal",
+      "lane": "practice",
       "config": {
         "prompt": "Eyes closed. Watch yourself finish the workout and walk into the day already won.",
         "durationSeconds": 60,
@@ -56,6 +58,7 @@
       "type": "structured",
       "title": "Today's move",
       "sourceTag": "Implementation intention",
+      "lane": "practice",
       "config": {
         "intro": "Decide the exact when and where. A plan beats willpower.",
         "fields": [
@@ -71,6 +74,7 @@
       "type": "text",
       "title": "The 2-minute version",
       "sourceTag": "Make it easy",
+      "lane": "practice",
       "config": {
         "prompt": "What is the smallest version you could not fail to do, even on your worst day? Shrinking it protects the streak.",
         "placeholder": "Put on my shoes and step outside.",
@@ -78,27 +82,40 @@
       }
     },
     {
-      "id": "track",
-      "type": "tracker",
-      "title": "Track it",
-      "sourceTag": "Reinforce",
-      "config": {
-        "habitLabel": "Morning workout",
-        "checkLabel": "Done today",
-        "streakModel": "daily",
-        "historyDays": 7
-      }
-    },
-    {
       "id": "identity",
       "type": "journal",
       "title": "Who you are becoming",
       "sourceTag": "Identity",
+      "lane": "practice",
       "config": {
         "prompt": "Finish the line. Every rep is a vote for this person.",
         "prefix": "I am becoming someone who",
         "placeholder": "shows up before the world wakes up.",
         "rows": 2
+      }
+    },
+    {
+      "id": "track",
+      "type": "commitment",
+      "title": "Morning workout",
+      "sourceTag": "Reinforce",
+      "lane": "commitment",
+      "config": {
+        "label": "Morning workout",
+        "note": "Twenty minutes. This is the one the whole day is really about.",
+        "keystone": true
+      }
+    },
+    {
+      "id": "evening-pages",
+      "type": "commitment",
+      "title": "Evening pages",
+      "sourceTag": "Reflect",
+      "lane": "commitment",
+      "config": {
+        "label": "Journal, ten minutes",
+        "note": "Longhand, end of day. Empty the head before sleep.",
+        "keystone": false
       }
     }
   ]

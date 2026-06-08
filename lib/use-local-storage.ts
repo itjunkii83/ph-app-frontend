@@ -12,6 +12,9 @@ export function useLocalStorage<T>(key: string, initial: T) {
   useEffect(() => {
     try {
       const raw = window.localStorage.getItem(key);
+      // localStorage is an external system; this one-shot read after mount is
+      // the hydration-safe pattern, so the sync setState here is intentional.
+      // eslint-disable-next-line react-hooks/set-state-in-effect
       if (raw != null) setValue(JSON.parse(raw) as T);
     } catch {
       // Unreadable saved state: fall back to the initial value.

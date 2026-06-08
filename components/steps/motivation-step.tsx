@@ -8,13 +8,14 @@ import { cn } from "@/lib/utils";
 
 // Storm-water gradients standing in for the cinematic film. Intense mood gets
 // the higher contrast, stronger version.
-const GRADIENTS: Record<string, string> = {
+export const STORM_GRADIENTS: Record<string, string> = {
   intense:
     "radial-gradient(130% 110% at 85% -10%, rgba(74, 96, 116, 0.9) 0%, rgba(38, 52, 66, 0.92) 36%, rgba(17, 23, 30, 0.96) 70%, #0a0b0d 100%)",
   calm: "radial-gradient(120% 90% at 80% 0%, rgba(48, 62, 76, 0.75) 0%, rgba(26, 35, 44, 0.85) 45%, #0a0b0d 100%)",
 };
 
-export function MotivationModule({
+// Step zero: the lights-down moment that opens the session.
+export function MotivationStep({
   module,
 }: {
   module: ModuleOf<"motivation">;
@@ -32,9 +33,9 @@ export function MotivationModule({
   }
 
   return (
-    <section
-      className="relative overflow-hidden rounded-2xl border border-line"
-      style={{ background: GRADIENTS[mood] ?? GRADIENTS.calm }}
+    <div
+      className="relative -mx-5 -mt-2 overflow-hidden rounded-2xl border border-line px-6 py-10 sm:-mx-6 sm:px-8"
+      style={{ background: STORM_GRADIENTS[mood] ?? STORM_GRADIENTS.calm }}
     >
       <div
         aria-hidden
@@ -49,33 +50,30 @@ export function MotivationModule({
           style={{ animation: "hero-sheen 1.6s ease" }}
         />
       )}
-      <div className="relative p-6 pb-7 sm:p-7">
-        <div className="flex items-baseline justify-between gap-3">
-          <h2 className="font-display text-lg text-paper">{module.title}</h2>
-          <span className="shrink-0 text-[11px] uppercase tracking-[0.14em] text-pewter">
-            {module.sourceTag}
-          </span>
-        </div>
+      <div className="relative">
+        <p className="text-[11px] uppercase tracking-[0.18em] text-pewter">
+          {module.sourceTag}
+        </p>
+        <h2 className="mt-3 font-display text-xl text-paper">{module.title}</h2>
         <blockquote
           className={cn(
-            "mt-6 font-display text-2xl leading-snug text-paper sm:text-[1.7rem]",
-            mood === "intense" &&
-              "[text-shadow:0_1px_28px_rgba(0,0,0,0.55)]",
+            "mt-8 font-display text-3xl leading-snug text-paper",
+            mood === "intense" && "[text-shadow:0_1px_28px_rgba(0,0,0,0.55)]",
             pulse > 0 && "animate-pulse",
           )}
         >
           {quote}
         </blockquote>
-        <p className="mt-3 text-xs text-pewter">{attribution}</p>
+        <p className="mt-4 text-xs text-pewter">{attribution}</p>
         <Button
           variant="outline"
           onClick={playHype}
-          className="mt-7 h-10 gap-2 border-line bg-white/5 px-4 text-paper hover:bg-white/10 hover:text-paper dark:bg-white/5 dark:hover:bg-white/10"
+          className="mt-10 h-10 gap-2 border-line bg-white/5 px-4 text-paper hover:bg-white/10 hover:text-paper dark:bg-white/5 dark:hover:bg-white/10"
         >
           <Play className="size-4" />
           {ctaLabel}
         </Button>
       </div>
-    </section>
+    </div>
   );
 }

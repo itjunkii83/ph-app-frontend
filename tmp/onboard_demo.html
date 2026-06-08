@@ -1,0 +1,970 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<title>Onboarding Storyboard, Pause Harbor</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,300..900;1,9..144,400..700&family=Archivo:wght@400;500;600;700&display=swap" rel="stylesheet">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/matter-js/0.19.0/matter.min.js"></script>
+<style>
+  :root{
+    --ink:#0a0b0d;
+    --ink-2:#111317;
+    --panel:#13161a;
+    --line:rgba(214,224,232,0.10);
+    --line-2:rgba(214,224,232,0.18);
+    --paper:#e7ecf1;
+    --muted:#8b939b;
+    --muted-2:#5b636b;
+    --silver:#d6dde4;
+    --pewter:#9aa5af;
+    --grad:linear-gradient(100deg,#eef3f7 0%,#a8b3bd 55%,#cfd8df 100%);
+    --display:'Fraunces',Georgia,serif;
+    --body:'Archivo',-apple-system,sans-serif;
+  }
+  *{margin:0;padding:0;box-sizing:border-box}
+  html,body{height:100%}
+  html{scroll-behavior:smooth}
+  body{
+    background:
+      radial-gradient(900px 600px at 50% -8%, rgba(120,135,150,.10), transparent 60%),
+      var(--ink);
+    color:var(--paper);
+    font-family:var(--body);
+    line-height:1.6;
+    -webkit-font-smoothing:antialiased;
+    overflow:hidden;
+    display:flex;align-items:center;justify-content:center;
+    min-height:100dvh;
+  }
+  body::after{
+    content:"";position:fixed;inset:0;z-index:9999;pointer-events:none;opacity:.055;
+    background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='200' height='200'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.8' numOctaves='3'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
+  }
+
+  /* ---- phone frame ---- */
+  .phone{
+    position:relative;
+    width:min(430px,100vw);
+    height:min(920px,100dvh);
+    background:linear-gradient(180deg,#0c0e11,#08090b);
+    border:1px solid var(--line-2);
+    border-radius:38px;
+    overflow:hidden;
+    box-shadow:0 40px 120px rgba(0,0,0,.6),inset 0 0 0 1px rgba(255,255,255,.02);
+  }
+  @media(max-width:480px){
+    .phone{border-radius:0;border:none;height:100dvh;box-shadow:none}
+  }
+
+  /* ---- shared chrome ---- */
+  .chrome{position:absolute;top:0;left:0;right:0;z-index:30;padding:18px 22px 10px;
+    background:linear-gradient(180deg,rgba(8,9,11,.92),rgba(8,9,11,0));pointer-events:none}
+  .topbar{position:relative;display:flex;align-items:center;justify-content:center;min-height:32px;margin-bottom:13px}
+  .backbtn{pointer-events:auto;position:absolute;left:-7px;top:50%;transform:translateY(-50%);
+    display:flex;align-items:center;justify-content:center;width:38px;height:38px;
+    background:none;border:none;cursor:pointer;color:var(--pewter);transition:color .2s}
+  .backbtn:hover{color:var(--paper)}
+  .backbtn svg{width:22px;height:22px}
+  .phase{font-size:10px;letter-spacing:.24em;text-transform:uppercase;color:var(--pewter);font-weight:600}
+  .meter{height:3px;width:100%;background:rgba(214,224,232,.08);border-radius:3px;overflow:hidden}
+  .meter i{display:block;height:100%;width:0;background:var(--grad);border-radius:3px;transition:width .7s cubic-bezier(.2,.7,.2,1)}
+
+  /* ---- stage / screens ---- */
+  .stage{position:absolute;inset:0}
+  .screen{position:absolute;inset:0;display:flex;flex-direction:column;
+    padding:96px 26px 30px;opacity:0;pointer-events:none;
+    transform:translateY(14px);transition:opacity .5s ease,transform .5s cubic-bezier(.2,.7,.2,1)}
+  .screen.active{opacity:1;pointer-events:auto;transform:none}
+  .screen.scroll{overflow-y:auto;-webkit-overflow-scrolling:touch}
+  .grow{flex:1;min-height:0}
+  .spacer{flex:1}
+
+  .eyebrow{font-size:11px;letter-spacing:.26em;text-transform:uppercase;color:var(--silver);font-weight:600;margin-bottom:16px}
+  h1.big{font-family:var(--display);font-weight:340;font-size:clamp(30px,8.5vw,40px);line-height:1.05;letter-spacing:-.015em}
+  h1.big em{font-style:italic;font-weight:420;background:var(--grad);-webkit-background-clip:text;background-clip:text;color:transparent}
+  h2.q{font-family:var(--display);font-weight:380;font-size:clamp(25px,7vw,33px);line-height:1.12;letter-spacing:-.01em}
+  h2.q em{font-style:italic;background:var(--grad);-webkit-background-clip:text;background-clip:text;color:transparent}
+  p.lede{margin-top:16px;font-size:16px;color:var(--muted);max-width:34ch}
+  p.tiny{font-size:12.5px;color:var(--muted-2);letter-spacing:.02em}
+
+  /* ---- buttons ---- */
+  .cta{display:flex;align-items:center;justify-content:center;gap:10px;width:100%;
+    font-family:var(--body);font-weight:600;font-size:15px;letter-spacing:.01em;
+    color:#0a0b0d;background:var(--grad);border:none;border-radius:14px;padding:16px;
+    cursor:pointer;transition:transform .2s ease,filter .2s ease,opacity .2s ease}
+  .cta:hover{filter:brightness(1.06)}
+  .cta:active{transform:translateY(1px) scale(.995)}
+  .cta:disabled{opacity:.28;cursor:not-allowed;filter:none}
+  .ghost{background:none;color:var(--muted);border:1px solid var(--line-2);border-radius:14px;
+    padding:14px;width:100%;font-family:var(--body);font-weight:500;font-size:14px;cursor:pointer;
+    transition:color .2s,border-color .2s}
+  .ghost:hover{color:var(--paper);border-color:var(--silver)}
+  .footer-cta{margin-top:auto;padding-top:18px;display:flex;flex-direction:column;gap:10px}
+  .screen[data-screen="bubbles"] .tray{padding-bottom:0}
+  .screen[data-screen="bubbles"] .footer-cta{padding-top:8px}
+
+  /* reflect: content scrolls, footer stays pinned so the CTA is always in view */
+  .screen[data-screen="reflect"]{padding-bottom:0}
+  .reflect-body{flex:1;min-height:0;overflow-y:auto;-webkit-overflow-scrolling:touch;padding-bottom:24px;
+    -webkit-mask-image:linear-gradient(180deg,#000 calc(100% - 20px),transparent);
+            mask-image:linear-gradient(180deg,#000 calc(100% - 20px),transparent)}
+  .reflect-body::-webkit-scrollbar{display:none}
+  .screen[data-screen="reflect"] .footer-cta{margin-top:0;padding:14px 0 26px}
+
+  /* ---- chips (trigger + commitment) ---- */
+  .chips{display:flex;flex-wrap:wrap;gap:10px;margin-top:26px}
+  .chip{font-family:var(--body);font-size:14px;color:#cdd5dd;background:var(--panel);
+    border:1px solid var(--line-2);border-radius:30px;padding:11px 16px;cursor:pointer;
+    transition:all .22s cubic-bezier(.2,.7,.2,1);user-select:none}
+  .chip:hover{border-color:var(--silver);color:var(--paper)}
+  .chip.on{color:#0a0b0d;background:var(--grad);border-color:transparent;font-weight:600;
+    box-shadow:0 6px 20px rgba(190,205,218,.18)}
+
+  /* ---- commitment stack ---- */
+  .stack{display:flex;flex-direction:column;gap:12px;margin-top:26px}
+  .opt{display:flex;align-items:baseline;gap:14px;text-align:left;background:var(--panel);
+    border:1px solid var(--line-2);border-radius:16px;padding:18px 18px;cursor:pointer;
+    transition:all .22s cubic-bezier(.2,.7,.2,1)}
+  .opt:hover{border-color:var(--silver)}
+  .opt.on{border-color:transparent;background:linear-gradient(100deg,rgba(238,243,247,.14),rgba(168,179,189,.07));box-shadow:inset 0 0 0 1px rgba(214,224,232,.4)}
+  .opt b{font-family:var(--display);font-weight:500;font-size:18px;color:var(--paper)}
+  .opt span{font-size:13px;color:var(--muted);display:block;margin-top:2px}
+  .opt .lead{flex:none;font-family:var(--display);font-size:15px;color:var(--pewter);width:30px}
+
+  /* ---- bubble pit ---- */
+  #pit-wrap{position:relative;flex:1;min-height:0;margin:14px 0 0;overflow:hidden}
+  #pit{position:absolute;inset:0;width:100%;height:100%;touch-action:none}
+  .tray{display:flex;gap:8px;overflow-x:auto;padding:14px 2px 4px;min-height:44px;scrollbar-width:none}
+  .tray::-webkit-scrollbar{display:none}
+  .tray:empty::before{content:"Nothing picked yet. Tap a bubble.";color:var(--muted-2);font-size:12.5px;letter-spacing:.02em;white-space:nowrap}
+  .tchip{flex:none;display:flex;align-items:center;gap:7px;font-size:12.5px;color:#0a0b0d;
+    background:var(--grad);border-radius:24px;padding:7px 8px 7px 13px;font-weight:600;white-space:nowrap}
+  .tchip button{border:none;background:rgba(10,11,13,.18);color:#0a0b0d;width:18px;height:18px;border-radius:50%;
+    cursor:pointer;font-size:13px;line-height:1;display:grid;place-items:center}
+
+  /* ---- reflect ---- */
+  .mirror{font-family:var(--display);font-weight:360;font-size:clamp(22px,6vw,28px);line-height:1.28;letter-spacing:-.01em;margin-top:6px}
+  .mirror em{font-style:italic;background:var(--grad);-webkit-background-clip:text;background-clip:text;color:transparent}
+  .themes{display:flex;flex-wrap:wrap;gap:9px;margin-top:24px}
+  .theme{font-size:12px;letter-spacing:.04em;color:var(--silver);border:1px solid var(--line-2);
+    border-radius:24px;padding:7px 13px;background:linear-gradient(180deg,rgba(190,205,218,.06),transparent)}
+  .reflabel{font-size:11px;letter-spacing:.2em;text-transform:uppercase;color:var(--muted-2);font-weight:600;margin:26px 0 4px}
+
+  /* ---- free text ---- */
+  textarea{width:100%;margin-top:22px;background:var(--ink-2);border:1px solid var(--line-2);
+    border-radius:16px;padding:16px;color:var(--paper);font-family:var(--body);font-size:15px;
+    line-height:1.5;resize:none;min-height:150px}
+  textarea:focus{outline:none;border-color:var(--silver)}
+  textarea::placeholder{color:var(--muted-2)}
+
+  /* ---- build / labor illusion ---- */
+  .build{display:flex;flex-direction:column;justify-content:center;height:100%}
+  .blist{margin-top:30px;display:flex;flex-direction:column;gap:2px}
+  .brow{display:flex;align-items:center;gap:14px;padding:15px 0;border-bottom:1px solid var(--line);
+    opacity:.3;transition:opacity .5s ease}
+  .brow.on{opacity:1}
+  .brow .dot{flex:none;width:22px;height:22px;border-radius:50%;border:1.5px solid var(--line-2);
+    display:grid;place-items:center;transition:all .4s ease}
+  .brow.on .dot{border-color:transparent;background:var(--grad);color:#0a0b0d}
+  .brow .dot svg{width:12px;height:12px;opacity:0;transition:opacity .3s ease .15s}
+  .brow.on .dot svg{opacity:1}
+  .brow span{font-size:15px;color:var(--muted)}
+  .brow.on span{color:var(--paper)}
+
+  /* ---- reveal / cinematic ---- */
+  #reveal{padding:0}
+  .film{position:absolute;inset:0;overflow:hidden}
+  .film-bg{position:absolute;inset:-14%;
+    background:
+      radial-gradient(1000px 620px at 64% 26%, rgba(150,170,190,.30), transparent 60%),
+      radial-gradient(760px 520px at 18% 84%, rgba(70,90,110,.34), transparent 62%),
+      linear-gradient(180deg,#13202b 0%,#0c1218 60%,#080a0c 100%);
+    animation:burn 24s ease-in-out infinite alternate;filter:saturate(.95)}
+  @keyframes burn{0%{transform:scale(1.04) translate(0,0)}100%{transform:scale(1.2) translate(-3%,-3%)}}
+  .film-veil{position:absolute;inset:0;background:linear-gradient(180deg,rgba(8,10,12,.2),rgba(8,10,12,.78))}
+  .film-inner{position:absolute;inset:0;z-index:2;display:flex;flex-direction:column;padding:96px 30px 30px}
+  .film-q{margin-top:auto}
+  .film-q .mk{font-size:11px;letter-spacing:.26em;text-transform:uppercase;color:var(--silver);font-weight:600;margin-bottom:18px}
+  .film-q blockquote{font-family:var(--display);font-weight:360;font-style:italic;font-size:clamp(26px,7.4vw,34px);line-height:1.22;letter-spacing:-.01em}
+  .film-q cite{display:block;margin-top:16px;font-style:normal;font-size:13px;letter-spacing:.12em;text-transform:uppercase;color:var(--pewter)}
+  .play{margin-top:26px;display:flex;align-items:center;gap:13px;cursor:pointer;width:fit-content}
+  .play .ring{width:48px;height:48px;border-radius:50%;border:1px solid var(--line-2);display:grid;place-items:center;
+    background:rgba(255,255,255,.05);transition:all .3s ease}
+  .play:hover .ring{border-color:var(--silver);background:rgba(255,255,255,.1)}
+  .play .ring svg{width:16px;height:16px;margin-left:2px}
+  .play .lbl{font-size:13px;letter-spacing:.16em;text-transform:uppercase;color:var(--silver);font-weight:600}
+  .film.playing .film-bg{animation-duration:8s;filter:saturate(1.15) brightness(1.12)}
+  .film.playing .film-q blockquote{text-shadow:0 0 30px rgba(190,205,218,.35)}
+  .film-note{margin-top:24px;font-size:13px;color:var(--muted)}
+
+  /* ---- one-line title modifier ---- */
+  .q.tight{font-size:clamp(22px,5.8vw,28px)}
+
+  /* ---- rhythm grid (commitment) ---- */
+  .rgrid{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-top:30px}
+  .rtile{display:flex;flex-direction:column;align-items:center;gap:11px;background:var(--panel);
+    border:1px solid var(--line-2);border-radius:18px;padding:24px 14px 20px;cursor:pointer;
+    font-family:var(--body);transition:all .25s cubic-bezier(.2,.7,.2,1)}
+  .rtile:hover{border-color:var(--silver);transform:translateY(-2px)}
+  .rtile.on{border-color:transparent;background:linear-gradient(160deg,rgba(238,243,247,.13),rgba(168,179,189,.05));
+    box-shadow:inset 0 0 0 1px rgba(214,224,232,.5),0 10px 30px rgba(190,205,218,.10)}
+  .rtile svg{width:60px;height:60px;display:block}
+  .gauge-bg{fill:none;stroke:rgba(214,224,232,.13);stroke-width:6}
+  .gauge-fill{fill:none;stroke:url(#rg);stroke-width:6;stroke-linecap:round}
+  .rtile .num{font-family:var(--display);font-weight:380;font-size:30px;line-height:1;letter-spacing:-.01em;
+    background:var(--grad);-webkit-background-clip:text;background-clip:text;color:transparent}
+  .rtile .num small{font-size:13px;letter-spacing:.04em;font-weight:400}
+  .rtile .rl{font-size:11px;letter-spacing:.16em;color:var(--muted);text-transform:uppercase;font-weight:600}
+  .rtile.on .rl{color:var(--silver)}
+  .clock-cap{margin:24px auto 0;font-size:14px;color:#cdd5dd;text-align:center;min-height:20px;max-width:38ch;transition:opacity .3s ease}
+</style>
+</head>
+<body>
+
+<div class="phone">
+  <!-- top chrome: back + phase + progress meter -->
+  <div class="chrome" id="chrome" style="opacity:0;transition:opacity .5s">
+    <div class="topbar">
+      <button class="backbtn" id="backBtn" data-prev aria-label="Back">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M15 18l-6-6 6-6"/></svg>
+      </button>
+      <span class="phase" id="phaseLabel">Arrival</span>
+    </div>
+    <div class="meter"><i id="meterFill"></i></div>
+  </div>
+
+  <div class="stage" id="stage">
+
+    <!-- 01 WELCOME -->
+    <section class="screen" data-screen="welcome">
+      <div class="spacer"></div>
+      <div class="eyebrow">Welcome aboard</div>
+      <h1 class="big">Still water.<br>Then you <em>set out.</em></h1>
+      <p class="lede">Ninety seconds to point your mornings somewhere that matters. No account, no rush. Just tell us what you are reaching for.</p>
+      <div class="spacer"></div>
+      <div class="footer-cta">
+        <button class="cta" data-next>Begin</button>
+        <p class="tiny" style="text-align:center">No sign up to look around.</p>
+      </div>
+    </section>
+
+    <!-- 02 TRIGGER -->
+    <section class="screen scroll" data-screen="trigger">
+      <div class="eyebrow">The reason it is now</div>
+      <h2 class="q">What brought you here, <em>right now?</em></h2>
+      <p class="lede">There is usually a reason the timing landed today. Pick whatever fits. More than one is fine.</p>
+      <div class="chips" id="triggerChips"></div>
+      <div class="footer-cta">
+        <button class="cta" data-next disabled id="triggerNext">Continue</button>
+      </div>
+    </section>
+
+    <!-- 03 BUBBLES (physics) -->
+    <section class="screen" data-screen="bubbles">
+      <div class="eyebrow">Find your direction</div>
+      <h2 class="q tight">What do you want <em>more of?</em></h2>
+      <div id="pit-wrap"><canvas id="pit"></canvas></div>
+      <div class="tray" id="tray"></div>
+      <div class="footer-cta">
+        <button class="cta" data-next disabled id="bubblesNext">That is me</button>
+      </div>
+    </section>
+
+    <!-- 04 REFLECT -->
+    <section class="screen" data-screen="reflect">
+      <div class="reflect-body">
+        <div class="eyebrow">Here is what we heard</div>
+        <p class="mirror" id="mirrorText"></p>
+        <div class="reflabel">What we will build around</div>
+        <div class="themes" id="themeTags"></div>
+      </div>
+      <div class="footer-cta">
+        <button class="cta" data-next>Yes, that is it</button>
+        <button class="ghost" data-prev>Not quite, let me adjust</button>
+      </div>
+    </section>
+
+    <!-- 05 FREE TEXT -->
+    <section class="screen scroll" data-screen="freetext">
+      <div class="eyebrow">In your own words</div>
+      <h2 class="q">Anything else <em>on your mind?</em></h2>
+      <p class="lede">Optional. A book that hit you, a season you are in, a line you keep coming back to. We read it to tune your mornings. We never show it back to anyone.</p>
+      <textarea id="freeText" placeholder="I keep starting and quitting. I want the mornings to finally stick, and that fired up feeling to carry the whole day."></textarea>
+      <div class="footer-cta">
+        <button class="cta" data-next>Continue</button>
+        <button class="ghost" data-next>Skip for now</button>
+      </div>
+    </section>
+
+    <!-- 06 COMMITMENT -->
+    <section class="screen" data-screen="commit">
+      <div class="eyebrow">Set your rhythm</div>
+      <h2 class="q tight">How long is your <em>morning?</em></h2>
+      <svg width="0" height="0" style="position:absolute" aria-hidden="true"><defs>
+        <linearGradient id="rg" x1="0" y1="0" x2="1" y2="1">
+          <stop offset="0" stop-color="#eef3f7"/>
+          <stop offset="0.55" stop-color="#a8b3bd"/>
+          <stop offset="1" stop-color="#cfd8df"/>
+        </linearGradient>
+      </defs></svg>
+      <div class="rgrid" id="rgrid"></div>
+      <p class="clock-cap" id="clockCap">Pick what you will actually keep. You can change it any day.</p>
+      <div class="footer-cta">
+        <button class="cta" data-next disabled id="commitNext">Continue</button>
+      </div>
+    </section>
+
+    <!-- 07 BUILD -->
+    <section class="screen" data-screen="build">
+      <div class="build">
+        <div class="eyebrow">Almost there</div>
+        <h2 class="q">Your harbor is <em>taking shape.</em></h2>
+        <div class="blist" id="buildList">
+          <div class="brow"><span class="dot"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3"><path d="M5 13l4 4L19 7"/></svg></span><span>Reading your direction</span></div>
+          <div class="brow"><span class="dot"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3"><path d="M5 13l4 4L19 7"/></svg></span><span>Choosing your morning</span></div>
+          <div class="brow"><span class="dot"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3"><path d="M5 13l4 4L19 7"/></svg></span><span>Shaping the first action</span></div>
+          <div class="brow"><span class="dot"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3"><path d="M5 13l4 4L19 7"/></svg></span><span>Setting today's opening scene</span></div>
+        </div>
+      </div>
+    </section>
+
+    <!-- 08 REVEAL -->
+    <section class="screen" data-screen="reveal" id="reveal">
+      <div class="film" id="film">
+        <div class="film-bg"></div>
+        <div class="film-veil"></div>
+        <div class="film-inner">
+          <div class="film-q">
+            <div class="mk">Your first moment</div>
+            <blockquote id="revealQuote">Waste no more time arguing about what a good person should be. Be one.</blockquote>
+            <cite>Marcus Aurelius</cite>
+            <div class="play" id="playBtn">
+              <span class="ring"><svg viewBox="0 0 24 24" fill="currentColor"><path d="M8 5v14l11-7z"/></svg></span>
+              <span class="lbl" id="playLbl">Play today's hype</span>
+            </div>
+            <p class="film-note">This is the opening scene. Tomorrow it builds itself around you, then hands you today's move.</p>
+          </div>
+          <div class="footer-cta">
+            <button class="cta" id="enterBtn">Enter Daily Harbor</button>
+            <button class="ghost" id="startOverBtn">Start over</button>
+          </div>
+        </div>
+      </div>
+    </section>
+
+  </div>
+</div>
+
+<script>
+/* =========================================================
+   PAUSE HARBOR, onboarding storyboard prototype
+   No backend, no persistence. Pure demo of the flow.
+   ========================================================= */
+
+const FLOW = ["welcome","trigger","bubbles","reflect","freetext","commit","build","reveal"];
+const PHASE = {welcome:"Arrival",trigger:"Arrival",bubbles:"Direction",reflect:"Direction",
+  freetext:"Direction",commit:"Rhythm",build:"Your Harbor",reveal:"Your Harbor"};
+const PROGRESS = {welcome:4,trigger:22,bubbles:55,reflect:64,freetext:72,commit:86,build:100,reveal:100};
+
+const state = { idx:0, triggers:[], picks:[], commit:null, commitMin:null };
+
+/* ---- trigger options (emotional why, not skills) ---- */
+const TRIGGERS = [
+  "A fresh start I want to keep this time",
+  "Tired of starting and quitting",
+  "A big change is coming",
+  "I want my energy back",
+  "Proving something to myself",
+  "Becoming the person I keep picturing",
+  "Something shook me up",
+  "Just ready for more"
+];
+
+/* ---- bubble taxonomy: parents are feelings/identity, children are facets ---- */
+const THEMES = [
+  { label:"Follow through", kids:["Finish what I start","Beat the snooze","Keep my word to me","Past week two"] },
+  { label:"Energy that lasts", kids:["A morning spark","Through the slump","No caffeine crash","Strong till evening"] },
+  { label:"Quiet confidence", kids:["Trust my gut","Speak up calmly","Stop second guessing","Solid walking in"] },
+  { label:"Calm under pressure", kids:["Breathe first","Less doom scrolling","Steady hands","Let small stuff go"] },
+  { label:"Show up for myself", kids:["Put me on the list","Boundaries that hold","Rest, guilt free"] },
+  { label:"Sharper focus", kids:["One thing at a time","Deep work mornings","Quiet the noise"] },
+  { label:"Feel grounded", kids:["Start on purpose","Less rushing","A body that feels good"] }
+];
+
+/* ---- commitment (self set, honest, no lazy option) ---- */
+const COMMITS = [
+  {min:2,  num:"2",   label:"Spark",      cap:"A spark. The moment, and one small move."},
+  {min:5,  num:"5",   label:"Real start", cap:"A real start. The sweet spot for most people."},
+  {min:10, num:"10",  label:"Dialed in",  cap:"Dialed in. Motivation plus a full action."},
+  {min:15, num:"15+", label:"All in",     cap:"All the way. The complete morning ritual."}
+];
+
+/* =========================  NAV  ========================= */
+const stage = document.getElementById("stage");
+const screens = {};
+document.querySelectorAll(".screen").forEach(s=>screens[s.dataset.screen]=s);
+const meterFill = document.getElementById("meterFill");
+const phaseLabel = document.getElementById("phaseLabel");
+const chrome = document.getElementById("chrome");
+const backBtn = document.getElementById("backBtn");
+
+function show(name){
+  const prev = FLOW[state.idx];
+  state.idx = FLOW.indexOf(name);
+  Object.values(screens).forEach(s=>s.classList.remove("active"));
+  screens[name].classList.add("active");
+  screens[name].scrollTop = 0;
+  const hideChrome = (name==="welcome"||name==="reveal");
+  chrome.style.opacity = hideChrome ? "0" : "1";
+  backBtn.style.visibility = hideChrome ? "hidden" : "visible";  // no phantom tap target when hidden
+  phaseLabel.textContent = PHASE[name];
+  meterFill.style.width = PROGRESS[name] + "%";
+  if(name==="bubbles") startPit();
+  if(name==="reflect") renderReflect();
+  if(name==="build") runBuild();
+  if(name==="reveal") {}
+}
+function next(){ const i=state.idx+1; if(i<FLOW.length) show(FLOW[i]); }
+function prev(){ let i=state.idx-1; if(FLOW[i]==="build") i--; if(i>=0) show(FLOW[i]); }  // skip the transient loader going back
+document.querySelectorAll("[data-next]").forEach(b=>b.addEventListener("click",next));
+document.querySelectorAll("[data-prev]").forEach(b=>b.addEventListener("click",prev));
+
+/* =========================  TRIGGER  ========================= */
+const triggerWrap = document.getElementById("triggerChips");
+const triggerNext = document.getElementById("triggerNext");
+TRIGGERS.forEach(t=>{
+  const c=document.createElement("div"); c.className="chip"; c.textContent=t;
+  c.addEventListener("click",()=>{
+    c.classList.toggle("on");
+    state.triggers = [...triggerWrap.querySelectorAll(".chip.on")].map(x=>x.textContent);
+    triggerNext.disabled = state.triggers.length===0;
+  });
+  triggerWrap.appendChild(c);
+});
+
+/* =========================  COMMITMENT (rhythm grid)  ========================= */
+const rgrid      = document.getElementById("rgrid");
+const clockCap   = document.getElementById("clockCap");
+const commitNext = document.getElementById("commitNext");
+const DEFAULT_CAP= "Pick what you will actually keep. You can change it any day.";
+const GC = 2*Math.PI*24;   // gauge ring circumference (r=24)
+
+/* build the four tiles once. each gauge is pre-filled to its share of the hour. */
+COMMITS.forEach(o=>{
+  const len = GC * (o.min/60);
+  const tile=document.createElement("button"); tile.className="rtile"; tile.dataset.min=o.min;
+  tile.innerHTML =
+    `<svg viewBox="0 0 60 60">
+       <circle class="gauge-bg" cx="30" cy="30" r="24"/>
+       <circle class="gauge-fill" cx="30" cy="30" r="24" transform="rotate(-90 30 30)"
+         stroke-dasharray="${len.toFixed(2)} ${GC.toFixed(2)}"/>
+     </svg>
+     <div class="num">${o.num}<small> min</small></div>
+     <div class="rl">${o.label}</div>`;
+  tile.addEventListener("click",()=>setCommit(o.min));
+  rgrid.appendChild(tile);
+});
+
+function setCommit(min){
+  const o=COMMITS.find(c=>c.min===min); if(!o) return;
+  state.commit=o.label; state.commitMin=min;
+  rgrid.querySelectorAll(".rtile").forEach(t=>t.classList.toggle("on", +t.dataset.min===min));
+  clockCap.textContent=o.cap;
+  commitNext.disabled=false;
+}
+function resetCommit(){
+  state.commit=null; state.commitMin=null;
+  rgrid.querySelectorAll(".rtile.on").forEach(t=>t.classList.remove("on"));
+  clockCap.textContent=DEFAULT_CAP;
+  commitNext.disabled=true;
+}
+
+/* =========================  REFLECT  ========================= */
+function joinNice(arr){
+  if(arr.length===1) return arr[0];
+  if(arr.length===2) return arr[0]+" and "+arr[1];
+  return arr.slice(0,-1).join(", ")+", and "+arr[arr.length-1];
+}
+function renderReflect(){
+  const labels = state.picks.map(p=>p.label.toLowerCase());
+  const top = labels.slice(0,3);
+  const mirror = document.getElementById("mirrorText");
+  let line = "So here is what we heard.";
+  if(top.length){
+    line += ` You are reaching for <em>${joinNice(top)}</em>.`;
+  }
+  line += " Underneath the list, this is really about becoming someone who follows through. We can build your mornings around exactly that.";
+  mirror.innerHTML = line;
+
+  const tags = document.getElementById("themeTags");
+  tags.innerHTML="";
+  const seen=new Set();
+  state.picks.forEach(p=>{
+    if(seen.has(p.label)) return; seen.add(p.label);
+    const t=document.createElement("span"); t.className="theme"; t.textContent=p.label;
+    tags.appendChild(t);
+  });
+}
+
+/* =========================  BUILD (labor illusion, humane)  ========================= */
+let buildTimers=[];
+function runBuild(){
+  buildTimers.forEach(clearTimeout); buildTimers=[];
+  const rows=[...document.getElementById("buildList").querySelectorAll(".brow")];
+  rows.forEach(r=>r.classList.remove("on"));
+  rows.forEach((r,i)=>buildTimers.push(setTimeout(()=>r.classList.add("on"), 500 + i*620)));
+  buildTimers.push(setTimeout(()=>{ if(FLOW[state.idx]==="build") show("reveal"); }, 500 + rows.length*620 + 700));
+}
+
+/* =========================  REVEAL  ========================= */
+const film=document.getElementById("film");
+document.getElementById("playBtn").addEventListener("click",()=>{
+  film.classList.add("playing");
+  document.getElementById("playLbl").textContent="Now playing";
+  setTimeout(()=>{film.classList.remove("playing");document.getElementById("playLbl").textContent="Play again";},8000);
+});
+document.getElementById("enterBtn").addEventListener("click",()=>{
+  document.getElementById("enterBtn").textContent="Welcome to your harbor.";
+});
+
+/* =========================  RESET  ========================= */
+function resetJourney(){
+  state.triggers=[];state.picks=[];state.commit=null;
+  triggerWrap.querySelectorAll(".chip.on").forEach(c=>c.classList.remove("on"));
+  triggerNext.disabled=true;
+  resetCommit();
+  document.getElementById("freeText").value="";
+  document.getElementById("bubblesNext").disabled=true;
+  document.getElementById("enterBtn").textContent="Enter Daily Harbor";
+  selectedLabels.clear();
+  document.getElementById("tray").innerHTML="";
+  openP=null;
+  engine=null; walls=null;
+  pit.bubbles=null; pit.spawnQueue=[];
+  show("welcome");
+}
+document.getElementById("startOverBtn").addEventListener("click", resetJourney);
+
+/* =====================================================================
+   THE BUBBLE PIT, a tiny physics engine. Flash-era floaty drift.
+   Parents float in a calm field. Tap a parent to bloom its children
+   (they pop outward). Tap any bubble to select it. Drag to fling.
+   ===================================================================== */
+const pit = {
+  canvas: document.getElementById("pit"),
+  ctx: null, w:0, h:0, dpr:1,
+  bubbles:null, raf:null, ready:false,
+  drag:null, pointerId:null,
+  spawnQueue:[], lastSpawn:0, spawnGap:230   // faucet: drop one parent at a time
+};
+pit.ctx = pit.canvas.getContext("2d");
+
+const ORBIT_SPEED = 0.0072;   // shared angular speed for the orbit ring
+let openP = null;             // the currently raised/open parent (one at a time)
+
+/* Matter.js runs the pool physics (gravity, walls, stacking). The orbit and
+   dock states are kept as our own kinematics. */
+const HAS_MATTER = typeof Matter !== "undefined";
+let engine=null, world=null, walls=null;
+
+function setupMatter(){
+  if(!HAS_MATTER) return;
+  engine = Matter.Engine.create();
+  engine.enableSleeping = true;
+  engine.gravity.y = 1.4;          // real gravity: bubbles fall and roll into place
+  engine.positionIterations = 12;  // firm separation, no bleeding into each other
+  engine.velocityIterations = 8;
+  world = engine.world;
+  buildWalls();
+}
+function buildWalls(){
+  if(!HAS_MATTER || !engine) return;
+  if(walls) Matter.Composite.remove(world, walls);
+  const t=240, opt={isStatic:true, friction:0.4}, M=14, SM=4;
+  const floor = Matter.Bodies.rectangle(pit.w/2, pit.h + t/2 - M, pit.w + t*2, t, opt);  // M px clear at the bottom
+  const ceil  = Matter.Bodies.rectangle(pit.w/2, -t/2,            pit.w + t*2, t, opt);  // the lid: bottom edge at y=0
+  const left  = Matter.Bodies.rectangle(-t/2 + SM,        pit.h/2,        t, pit.h*4, opt);
+  const right = Matter.Bodies.rectangle(pit.w + t/2 - SM, pit.h/2,        t, pit.h*4, opt);
+  walls=[floor,ceil,left,right];
+  Matter.Composite.add(world, walls);
+}
+function makePoolBody(b){
+  if(!HAS_MATTER) return;
+  const body = Matter.Bodies.circle(b.x, b.y, b.r, {
+    restitution:0.1,        // barely bounces, settles fast
+    friction:0.1,           // rolls into the valley, does not slide forever
+    frictionStatic:0.2,
+    frictionAir:0.01
+  });
+  b.body=body;
+  Matter.Composite.add(world, body);
+  return body;
+}
+
+/* selection lives in a Set keyed by label, independent of whether the
+   bubble is currently on screen. so collapsing children keeps your picks. */
+const kindMap = new Map();
+THEMES.forEach(t=>{ kindMap.set(t.label,"parent"); t.kids.forEach(k=>kindMap.set(k,"child")); });
+const selectedLabels = new Set();
+
+function rand(a,b){return a+Math.random()*(b-a);}
+
+function sizePit(){
+  const wrap=document.getElementById("pit-wrap");
+  const r=wrap.getBoundingClientRect();
+  pit.dpr=Math.min(window.devicePixelRatio||1,2);
+  pit.w=r.width; pit.h=r.height;
+  pit.canvas.width=pit.w*pit.dpr; pit.canvas.height=pit.h*pit.dpr;
+  pit.ctx.setTransform(pit.dpr,0,0,pit.dpr,0,0);
+  computeGeometry();
+}
+
+/* Pyramid math. Four across the base sets the size:
+   base width = 8r + 3*gap, kept to ~92% of the pit so there is a side margin.
+   => r = (0.92*W - 3*gap) / 8.  Top row of three nestles in the valleys. */
+const PYRAMID_GAP = 6;
+function computeGeometry(){
+  const g=PYRAMID_GAP;
+  pit.parentR = Math.max(26, (pit.w*0.92 - 3*g)/8);
+  pit.childR  = Math.max(24, pit.parentR*0.74);
+  const r=pit.parentR, cell=2*r+g, cx=pit.w/2;
+  const baseY = pit.h - r - 14;
+  const dyRow = cell*Math.sqrt(3)/2;     // row height for nestled packing
+  const topY  = baseY - dyRow;
+  pit.slots=[];
+  for(let k=0;k<4;k++) pit.slots.push({x:cx - 1.5*cell + k*cell, y:baseY});  // base: 4
+  for(let k=0;k<3;k++) pit.slots.push({x:cx - cell      + k*cell, y:topY });  // top: 3
+}
+function relayoutSlots(){
+  if(!pit.bubbles) return;
+  pit.bubbles.forEach(b=>{
+    if(b.kind==="parent" && b.slotIndex!=null && pit.slots[b.slotIndex]){
+      const s=pit.slots[b.slotIndex];
+      b.slotX=s.x; b.slotY=s.y;
+    }
+  });
+}
+
+function makeBubble(label,kind,parent,x,y){
+  const baseR = kind==="parent" ? (pit.parentR||38) : (pit.childR||30);
+  return {
+    label, kind, parent: parent||null,
+    mode: kind==="parent" ? "pool" : "orbit",  // pool | dock | orbit
+    open:false, dying:false, born:performance.now(),
+    x, y, vx:rand(-.2,.2), vy:rand(-.2,.2),
+    r:baseR, targetR:baseR, poolR:baseR,
+    seed: rand(-1,1),
+    body:null, con:null,                       // matter.js body + slot tether when pooled
+    slotIndex:null, slotX:0, slotY:0,
+    // dock target
+    dockX:0, dockY:0,
+    // orbit ring (lives on the parent; children carry only their slot)
+    orbitPhase:0, orbitR:0, orbitRt:0,
+    orbitIdx:0, orbitCount:1
+  };
+}
+
+function initBubbles(){
+  sizePit();
+  pit.bubbles=[];
+  // queue every parent to fall from the faucet, one at a time
+  pit.spawnQueue = THEMES.map(t=>t.label);
+  pit.lastSpawn = 0;
+  if(HAS_MATTER){ setupMatter(); }
+  else { layoutFallback(); }
+}
+
+/* no-library fallback: drop bubbles straight into the computed pyramid slots */
+function layoutFallback(){
+  pit.spawnQueue=[];
+  THEMES.forEach((t,i)=>{
+    const b=makeBubble(t.label,"parent",null,0,0);
+    const s=pit.slots[i] || {x:pit.w/2,y:pit.h/2};
+    b.slotIndex=i; b.slotX=s.x; b.slotY=s.y; b.x=s.x; b.y=s.y;
+    pit.bubbles.push(b);
+  });
+}
+
+function spawnNext(now){
+  if(!pit.spawnQueue.length) return;
+  if(now - pit.lastSpawn < pit.spawnGap) return;
+  pit.lastSpawn = now;
+  const label = pit.spawnQueue.shift();
+  const idx = pit.bubbles.filter(b=>b.kind==="parent").length;   // 0..6, the next slot
+  const s = pit.slots[idx] || {x:pit.w/2, y:pit.h/2};
+  const b = makeBubble(label,"parent",null, s.x, pit.parentR + 8);  // start just under the lid, in its column
+  b.slotIndex=idx; b.slotX=s.x; b.slotY=s.y;
+  pit.bubbles.push(b);
+  const body = makePoolBody(b);
+  if(body) Matter.Body.setVelocity(body, {x:0, y:3});   // falls straight down into place
+}
+
+function bloomOrbit(p){
+  const theme=THEMES.find(t=>t.label===p.label); if(!theme) return;
+  if(pit.bubbles.some(b=>b.kind==="child"&&b.parent===p.label&&!b.dying)) return;
+  const n=theme.kids.length;
+  theme.kids.forEach((k,i)=>{
+    const b=makeBubble(k,"child",p.label, p.x, p.y);
+    b.mode="orbit"; b.r=2;                       // grows out of the parent
+    b.targetR = p.orbitChildR || b.targetR;      // bigger children in the focused ring
+    b.orbitIdx=i; b.orbitCount=n;                // evenly spaced slot on the ring
+    pit.bubbles.push(b);
+  });
+}
+
+function collapseOrbit(parentLabel){
+  for(const b of pit.bubbles){
+    if(b.kind==="child" && b.parent===parentLabel && !b.dying){ b.dying=true; }
+  }
+}
+
+function openParent(p){
+  if(openP && openP!==p) closeParent(openP, true);   // only one open at a time
+  if(p.body && HAS_MATTER){ Matter.Composite.remove(world, p.body); p.body=null; p.con=null; }
+  const focusR = p.poolR * 1.4;        // the focused bubble inflates, easier to read
+  const childR = focusR * 0.68;        // generous, readable children
+  p.mode="dock"; p.open=true; openP=p;
+  p.targetR = focusR;                  // grows into the bigger size as it rises
+  p.orbitChildR = childR;
+  p.orbitRt = focusR + childR + 14;    // every child the same distance from the center
+  p.dockX = pit.w/2;
+  p.dockY = p.orbitRt + childR + 14;   // sit high: whole ring stays on screen, clear of the pile
+  p.orbitPhase = 0;
+  p.orbitR = 0;
+  selectedLabels.add(p.label);         // opening a theme picks it
+  bloomOrbit(p);
+}
+
+function closeParent(p, keepSelected){
+  collapseOrbit(p.label);
+  p.mode="pool"; p.open=false;
+  p.r = p.poolR; p.targetR = p.poolR;  // shrink back to its pyramid size
+  if(openP===p) openP=null;
+  if(!keepSelected) selectedLabels.delete(p.label);
+  p.x = p.slotX; p.y = p.poolR + 8;   // re-drop from just under the lid, down its own column
+  const body = makePoolBody(p);
+  if(body) Matter.Body.setVelocity(body, {x:0, y:3});   // falls back into its slot
+}
+
+function syncSelection(){
+  state.picks = [...selectedLabels].map(l=>({label:l, kind:kindMap.get(l)||"child"}));
+  document.getElementById("bubblesNext").disabled = state.picks.length===0;
+  renderTray();
+}
+function renderTray(){
+  const tray=document.getElementById("tray");
+  const prevCount=tray.children.length;       // chips currently shown
+  const prevScroll=tray.scrollLeft;
+  tray.innerHTML="";
+  selectedLabels.forEach(label=>{
+    const c=document.createElement("div"); c.className="tchip";
+    c.innerHTML=`<span>${label}</span><button aria-label="remove">×</button>`;
+    c.querySelector("button").addEventListener("click",()=>{
+      selectedLabels.delete(label);
+      // if a docked parent is removed via the tray, send it back down
+      const pb=pit.bubbles&&pit.bubbles.find(b=>b.label===label&&b.kind==="parent");
+      if(pb&&pb.open) closeParent(pb, false);
+      syncSelection();
+    });
+    tray.appendChild(c);
+  });
+  const added = selectedLabels.size > prevCount;
+  requestAnimationFrame(()=>{
+    if(added) tray.scrollTo({left:tray.scrollWidth, behavior:"smooth"});  // reveal the one just added
+    else tray.scrollLeft = Math.min(prevScroll, tray.scrollWidth);        // leave the user where they were
+  });
+}
+
+/* ---- physics step ---- */
+function step(){
+  const bs=pit.bubbles; if(!bs){ pit.raf=requestAnimationFrame(step); return; }
+  const now=performance.now();
+
+  spawnNext(now);   // faucet drips one parent at a time on load
+
+  if(HAS_MATTER && engine) Matter.Engine.update(engine, 1000/60);  // pool physics
+
+  const parentOf={};
+  for(const b of bs) if(b.kind==="parent") parentOf[b.label]=b;
+
+  for(const b of bs){
+    // dying children shrink back into their parent
+    if(b.dying){
+      const p=parentOf[b.parent];
+      if(p){ b.x+=(p.x-b.x)*0.28; b.y+=(p.y-b.y)*0.28; }
+      b.r += (0-b.r)*0.28;
+      continue;
+    }
+    // grow into place
+    if(b.r<b.targetR) b.r=Math.min(b.targetR, b.r+(b.targetR*0.16));
+
+    if(b.mode==="orbit"){            // children ride a rigid ring around the parent
+      const p=parentOf[b.parent];
+      if(p){
+        const a = p.orbitPhase + (b.orbitIdx/b.orbitCount)*Math.PI*2;
+        b.x = p.x + Math.cos(a)*p.orbitR;   // same distance, even spacing
+        b.y = p.y + Math.sin(a)*p.orbitR;
+      }
+      continue;
+    }
+
+    if(b.mode==="dock"){             // raised parent eases up + spins its ring as one
+      b.x += (b.dockX-b.x)*0.13;
+      b.y += (b.dockY-b.y)*0.13;
+      b.orbitPhase += ORBIT_SPEED;
+      b.orbitR += (b.orbitRt-b.orbitR)*0.08;   // ring grows out together
+      continue;
+    }
+
+    // pooled: position comes straight from the matter.js body
+    if(b.body){ b.x = b.body.position.x; b.y = b.body.position.y; }
+  }
+
+  if(bs.some(b=>b.dying&&b.r<3)) pit.bubbles=bs.filter(b=>!(b.dying&&b.r<3));
+
+  draw(now);
+  pit.raf=requestAnimationFrame(step);
+}
+
+/* ---- render ---- */
+function wrapText(ctx,text,maxW){
+  const words=text.split(" "); const lines=[]; let cur="";
+  for(const w of words){
+    const test=cur?cur+" "+w:w;
+    if(ctx.measureText(test).width>maxW && cur){lines.push(cur);cur=w;}
+    else cur=test;
+  }
+  if(cur)lines.push(cur);
+  return lines.slice(0,3);
+}
+function draw(now){
+  const ctx=pit.ctx; ctx.clearRect(0,0,pit.w,pit.h);
+  for(const b of pit.bubbles){
+    const sel = selectedLabels.has(b.label);
+    const pop = b.dying ? Math.max(0, b.r/30) : Math.min(1,(now-b.born)/280);
+    ctx.save();
+    ctx.globalAlpha = b.dying ? Math.max(0, b.r/24) : 1;
+    ctx.beginPath(); ctx.arc(b.x,b.y,Math.max(b.r,0.1),0,Math.PI*2);
+
+    if(sel){
+      const g=ctx.createLinearGradient(b.x-b.r,b.y-b.r,b.x+b.r,b.y+b.r);
+      g.addColorStop(0,"#eef3f7");g.addColorStop(.55,"#a8b3bd");g.addColorStop(1,"#cfd8df");
+      ctx.fillStyle=g; ctx.shadowColor="rgba(190,205,218,.55)"; ctx.shadowBlur=24;
+      ctx.fill();
+    }else{
+      ctx.fillStyle = b.kind==="parent" ? "rgba(22,26,31,.92)" : "rgba(17,19,23,.86)";
+      ctx.shadowColor="rgba(0,0,0,.4)"; ctx.shadowBlur=8;
+      ctx.fill();
+      ctx.shadowBlur=0;
+      ctx.lineWidth = b.kind==="parent" ? 1.4 : 1;
+      ctx.strokeStyle = b.kind==="parent" ? "rgba(214,224,232,.45)" : "rgba(154,165,175,.32)";
+      ctx.stroke();
+    }
+    ctx.restore();
+
+    // raised parent shows a faint "tap to close" inner ring
+    if(b.kind==="parent" && b.open && !b.dying){
+      ctx.save(); ctx.globalAlpha=sel?0.5:0.25;
+      ctx.beginPath();ctx.arc(b.x,b.y,b.r-7,0,Math.PI*2);
+      ctx.strokeStyle = sel ? "rgba(10,11,13,.5)" : "rgba(214,224,232,.4)";
+      ctx.lineWidth=1; ctx.setLineDash([2,4]); ctx.stroke();
+      ctx.restore();
+    }
+
+    // label
+    const fs=Math.max(10, b.r*(b.kind==="parent"?0.30:0.28)) + 2;
+    ctx.font = `500 ${fs}px ${b.kind==="parent"?"Fraunces":"Archivo"}, sans-serif`;
+    ctx.textAlign="center"; ctx.textBaseline="middle";
+    ctx.fillStyle = sel ? "#0a0b0d" : (b.kind==="parent"?"#e7ecf1":"#c5cdd5");
+    ctx.globalAlpha=pop;
+    const lines=wrapText(ctx,b.label,b.r*1.7);
+    const lh=fs*1.12; const startY=b.y-(lines.length-1)*lh/2;
+    lines.forEach((ln,i)=>ctx.fillText(ln,b.x,startY+i*lh));
+    ctx.globalAlpha=1;
+  }
+}
+
+/* ---- pointer interaction (tap vs drag) ---- */
+function pointPos(e){
+  const r=pit.canvas.getBoundingClientRect();
+  return {x:(e.clientX-r.left), y:(e.clientY-r.top)};
+}
+function hit(p){
+  // topmost first
+  for(let i=pit.bubbles.length-1;i>=0;i--){
+    const b=pit.bubbles[i];
+    if(Math.hypot(p.x-b.x,p.y-b.y)<=b.r) return b;
+  }
+  return null;
+}
+pit.canvas.addEventListener("pointerdown",e=>{
+  if(!pit.bubbles)return;
+  pit.canvas.setPointerCapture(e.pointerId);
+  const p=pointPos(e); const b=hit(p);
+  if(b){
+    pit.drag={b, ox:p.x-b.x, oy:p.y-b.y, sx:p.x, sy:p.y, t:performance.now(), moved:false, lx:p.x, ly:p.y};
+    if(b.body && HAS_MATTER){
+      Matter.Sleeping.set(b.body,false);   // wake it so you can fling it around
+    }
+  }
+});
+pit.canvas.addEventListener("pointermove",e=>{
+  if(!pit.drag)return;
+  const p=pointPos(e); const d=pit.drag;
+  if(Math.hypot(p.x-d.sx,p.y-d.sy)>6) d.moved=true;
+  if(d.b.mode==="pool" && d.b.body && HAS_MATTER){     // drag the physics body
+    Matter.Body.setPosition(d.b.body, {x:p.x-d.ox, y:p.y-d.oy});
+    Matter.Body.setVelocity(d.b.body, {x:p.x-d.lx, y:p.y-d.ly});
+  }
+  d.lx=p.x; d.ly=p.y;
+});
+function endDrag(e){
+  const d=pit.drag; if(!d)return; pit.drag=null;
+  if(d.b.mode==="pool" && d.b.body && HAS_MATTER){     // let it fly, then gravity settles it
+    const v=d.b.body.velocity;
+    const cap=22, sp=Math.hypot(v.x,v.y);
+    if(sp>cap) Matter.Body.setVelocity(d.b.body, {x:v.x/sp*cap, y:v.y/sp*cap});
+  }
+  const dt=performance.now()-d.t;
+  if(!d.moved && dt<400){
+    // it's a TAP
+    const b=d.b;
+    if(b.kind==="parent"){
+      if(!b.open) openParent(b);          // rise up, fan children into orbit
+      else closeParent(b, true);          // tap again to minimize, keep the pick
+    }else{
+      if(selectedLabels.has(b.label)) selectedLabels.delete(b.label);
+      else selectedLabels.add(b.label);
+    }
+    syncSelection();
+  }
+}
+pit.canvas.addEventListener("pointerup",endDrag);
+pit.canvas.addEventListener("pointercancel",endDrag);
+
+function startPit(){
+  cancelAnimationFrame(pit.raf);
+  // (re)build only if empty, so going back keeps your picks
+  requestAnimationFrame(()=>{
+    sizePit(); buildWalls(); relayoutSlots();
+    if(!pit.bubbles) initBubbles();
+    syncSelection();
+    pit.raf=requestAnimationFrame(step);
+  });
+}
+window.addEventListener("resize",()=>{ if(FLOW[state.idx]==="bubbles"){ sizePit(); buildWalls(); relayoutSlots(); } });
+if(window.ResizeObserver){
+  const ro=new ResizeObserver(()=>{ if(FLOW[state.idx]==="bubbles"&&pit.bubbles){ sizePit(); buildWalls(); relayoutSlots(); } });
+  ro.observe(document.getElementById("pit-wrap"));
+}
+
+/* =========================  BOOT  ========================= */
+function boot(){ show("welcome"); }
+if(document.fonts&&document.fonts.ready){ document.fonts.ready.then(boot); setTimeout(boot,1200); }
+else boot();
+</script>
+</body>
+</html>

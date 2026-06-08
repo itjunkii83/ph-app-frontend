@@ -67,10 +67,22 @@ export interface JournalConfig {
   rows: number;
 }
 
+export interface CommitmentConfig {
+  label: string;
+  note: string;
+  keystone: boolean;
+}
+
+// A module's lane decides where it surfaces. Practice reps run inside the
+// focused session; commitments live on Harbor and are checked off through the
+// day. The motivation moment has no lane: it opens the session as step zero.
+export type Lane = "practice" | "commitment";
+
 interface ModuleBase {
   id: string;
   title: string;
   sourceTag: string;
+  lane?: Lane;
 }
 
 export type Module =
@@ -80,7 +92,8 @@ export type Module =
   | (ModuleBase & { type: "structured"; config: StructuredConfig })
   | (ModuleBase & { type: "text"; config: TextConfig })
   | (ModuleBase & { type: "tracker"; config: TrackerConfig })
-  | (ModuleBase & { type: "journal"; config: JournalConfig });
+  | (ModuleBase & { type: "journal"; config: JournalConfig })
+  | (ModuleBase & { type: "commitment"; config: CommitmentConfig });
 
 export type ModuleOf<T extends Module["type"]> = Extract<Module, { type: T }>;
 

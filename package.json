@@ -4,8 +4,8 @@
   "private": true,
   "packageManager": "pnpm@11.5.1",
   "scripts": {
-    "build": "pnpm -r build",
-    "lint": "pnpm -r lint",
+    "build": "pnpm --filter wisdom-toolkit --filter wisdom build",
+    "lint": "pnpm --filter wisdom-toolkit --filter wisdom lint",
     "dev:toolkit": "pnpm --filter wisdom-toolkit dev",
     "dev:studio": "pnpm --filter wisdom dev",
     "build:toolkit": "pnpm --filter wisdom-toolkit build",

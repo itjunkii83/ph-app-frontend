@@ -1,0 +1,17 @@
+{
+  "name": "codepen-extractor",
+  "version": "1.0.0",
+  "private": true,
+  "description": "Extract HTML/CSS/JS from CodePen URLs into standalone HTML files",
+  "scripts": {
+    "start": "node server.js"
+  },
+  "dependencies": {
+    "puppeteer": "^24.2.0"
+  },
+  "pnpm": {
+    "onlyBuiltDependencies": [
+      "puppeteer"
+    ]
+  }
+}

@@ -266,5 +266,6 @@ export const dreamySmokeDefinition: EffectDefinition = {
   component: DreamySmoke,
   duration: { type: 'auto' },
   performanceCost: 'medium',
+  selfCompletes: true,
   description: 'Text fades in with a soft blur glow, then each character smokes away in random order',
 };

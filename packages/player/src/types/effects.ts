@@ -65,4 +65,9 @@ export interface EffectDefinition {
   duration: DurationMode;
   performanceCost: 'low' | 'medium' | 'high';
   description?: string;
+  // True when the effect drives a full enter -> hold -> exit lifecycle and calls
+  // onComplete after its exit. The player advances a slide once its
+  // self-completing effects finish, so their exit animations play in full. Effects
+  // without this (static text, ambient backgrounds) rely on slide.duration.
+  selfCompletes?: boolean;
 }

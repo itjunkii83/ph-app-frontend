@@ -1,8 +1,9 @@
 "use client";
 
 import * as React from "react";
-import { Presentation } from "./types/presentation";
+import { Presentation, Slide } from "./types/presentation";
 import { getSections } from "./lib/presentation/normalize";
+import { getEffect } from "./components/effects/registry";
 import { SectionRenderer } from "./components/engine/SectionRenderer";
 import { PresentationStage } from "./PresentationStage";
 import { registerEffects } from "./registerEffects";
@@ -20,18 +21,30 @@ interface PlaybackStep {
   sectionIndex: number;
   slideIndex: number;
   duration: number;
+  selfCompletes: boolean;
 }
 
 const DEFAULT_SLIDE_MS = 5000;
+// Safety net so a self-completing slide can never hang if an effect fails to fire
+// onComplete; well beyond any real enter + hold + exit cycle.
+const SELF_COMPLETE_SAFETY_MS = 120000;
+
+function slideSelfCompletes(slide: Slide): boolean {
+  return slide.layers.some(
+    (l) =>
+      l.visible !== false && getEffect(l.effectType)?.selfCompletes === true,
+  );
+}
 
 /**
- * Plays a presentation natively: normalizes sections/legacy slides into a linear
- * walk, advances each slide by its duration, drives the SectionRenderer, plays
- * the optional soundtrack, and calls onComplete at the end. Sizing is fully
- * container-relative via PresentationStage (no orientation lock, no letterbox).
+ * Plays a presentation natively. A slide that contains a self-completing effect
+ * (text reveals) advances when that effect finishes its enter -> hold -> exit
+ * cycle, so the exit animation plays in full; other slides advance on
+ * slide.duration. Plays the optional settings.audioUrl and calls onComplete at
+ * the end. Sizing is fully container-relative via PresentationStage.
  *
- * StrictMode-safe: advance timers and the Audio element are torn down on every
- * cleanup, and a ref guards onComplete against a double fire.
+ * StrictMode-safe: timers and Audio are torn down on cleanup, advancement is
+ * guarded per slide, and onComplete is guarded against a double fire.
  */
 export function PresentationPlayer({
   presentation,
@@ -52,6 +65,7 @@ export function PresentationPlayer({
           sectionIndex,
           slideIndex,
           duration: slide.duration || DEFAULT_SLIDE_MS,
+          selfCompletes: slideSelfCompletes(slide),
         });
       });
     });
@@ -60,10 +74,14 @@ export function PresentationPlayer({
 
   const [pos, setPos] = React.useState(0);
 
-  // Keep the latest onComplete without retriggering effects, and guard it.
   const onCompleteRef = React.useRef(onComplete);
   onCompleteRef.current = onComplete;
   const doneRef = React.useRef(false);
+  const posRef = React.useRef(0);
+  posRef.current = pos;
+  const stepsRef = React.useRef(steps);
+  stepsRef.current = steps;
+  const advancedForPos = React.useRef(-1);
 
   const finish = React.useCallback(() => {
     if (doneRef.current) return;
@@ -71,25 +89,34 @@ export function PresentationPlayer({
     onCompleteRef.current?.();
   }, []);
 
-  // Advance the current slide after its duration; finish at the end.
+  // Advance to the next slide, or finish at the end. Guarded so the
+  // onSlideComplete signal and the safety/fallback timer can't double-advance.
+  const advanceOrFinish = React.useCallback(() => {
+    const p = posRef.current;
+    if (advancedForPos.current === p) return;
+    advancedForPos.current = p;
+    if (p + 1 >= stepsRef.current.length) {
+      finish();
+    } else {
+      setPos(p + 1);
+    }
+  }, [finish]);
+
+  // Self-completing slides advance on onSlideComplete (with a long safety cap);
+  // other slides advance on slide.duration.
   React.useEffect(() => {
     if (steps.length === 0) {
       finish();
       return;
     }
     if (pos >= steps.length) return;
-    const timer = window.setTimeout(() => {
-      if (pos + 1 >= steps.length) {
-        finish();
-      } else {
-        setPos((p) => p + 1);
-      }
-    }, steps[pos].duration);
+    const step = steps[pos];
+    const delay = step.selfCompletes ? SELF_COMPLETE_SAFETY_MS : step.duration;
+    const timer = window.setTimeout(advanceOrFinish, delay);
     return () => window.clearTimeout(timer);
-  }, [pos, steps, finish]);
+  }, [pos, steps, advanceOrFinish, finish]);
 
-  // Native audio. The /play route's in-route Begin tap is the autoplay gesture,
-  // so play() should succeed; we still catch a rejection defensively.
+  // Native audio. The /play route's in-route Begin tap is the autoplay gesture.
   React.useEffect(() => {
     if (!audioUrl) return;
     const audio = new Audio(audioUrl);
@@ -103,7 +130,8 @@ export function PresentationPlayer({
     };
   }, [audioUrl]);
 
-  const current = steps.length > 0 ? steps[Math.min(pos, steps.length - 1)] : null;
+  const current =
+    steps.length > 0 ? steps[Math.min(pos, steps.length - 1)] : null;
   const section = current ? sections[current.sectionIndex] : null;
 
   return (
@@ -118,6 +146,7 @@ export function PresentationPlayer({
           activeSlideIndex={current.slideIndex}
           isActive
           playKey={pos}
+          onSlideComplete={advanceOrFinish}
         />
       )}
     </PresentationStage>

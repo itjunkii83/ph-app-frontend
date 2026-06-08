@@ -10,6 +10,7 @@ interface SectionRendererProps {
   activeSlideIndex: number;
   isActive?: boolean;
   playKey?: number; // Change this to replay animations
+  onSlideComplete?: () => void;
 }
 
 /**
@@ -25,6 +26,7 @@ export function SectionRenderer({
   activeSlideIndex,
   isActive = true,
   playKey = 0,
+  onSlideComplete,
 }: SectionRendererProps) {
   // Get current slide (if valid index)
   const currentSlide = useMemo(() => {
@@ -69,6 +71,7 @@ export function SectionRenderer({
           key={slideKey}
           slide={currentSlide}
           isActive={isActive}
+          onSlideComplete={onSlideComplete}
         />
       )}
     </div>

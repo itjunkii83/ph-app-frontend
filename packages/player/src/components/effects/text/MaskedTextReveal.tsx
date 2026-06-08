@@ -250,5 +250,6 @@ export const maskedTextRevealDefinition: EffectDefinition = {
   component: MaskedTextReveal,
   duration: { type: 'auto' },
   performanceCost: 'medium',
+  selfCompletes: true,
   description: 'Text reveals line-by-line (or word/char) with a masked sliding animation',
 };

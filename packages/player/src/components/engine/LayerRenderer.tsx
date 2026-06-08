@@ -8,9 +8,10 @@ import { cqLength, useBaseCanvas } from '../../lib/responsive';
 interface LayerRendererProps {
   layer: Layer;
   isActive: boolean;
+  onComplete?: () => void;
 }
 
-export function LayerRenderer({ layer, isActive }: LayerRendererProps) {
+export function LayerRenderer({ layer, isActive, onComplete }: LayerRendererProps) {
   const base = useBaseCanvas();
   if (!layer.visible) return null;
 
@@ -40,7 +41,7 @@ export function LayerRenderer({ layer, isActive }: LayerRendererProps) {
 
   return (
     <div style={style}>
-      <EffectRenderer layer={layer} isActive={isActive} />
+      <EffectRenderer layer={layer} isActive={isActive} onComplete={onComplete} />
     </div>
   );
 }

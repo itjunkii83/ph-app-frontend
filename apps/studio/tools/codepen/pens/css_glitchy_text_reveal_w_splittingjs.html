@@ -1,0 +1,211 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>CSS Glitchy Text Reveal w/ Splitting.js 😎</title>
+  <style>
+* {
+  box-sizing: border-box;
+  transition: color 0.25s ease;
+}
+:root {
+  --dark: #111;
+  --light: #fefefe;
+  --color: var(--dark);
+  --bg: var(--light);
+}
+@media (prefers-color-scheme: dark) {
+  :root {
+    --color: var(--light);
+    --bg: var(--dark);
+  }
+}
+body {
+  background-color: var(--bg);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 100vh;
+  font-size: 3.5rem;
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, 'Open Sans', 'Helvetica Neue', sans-serif;
+  font-weight: bold;
+}
+p {
+  max-width: 300px;
+}
+p[data-scroll='in'] [data-char]:after {
+  -webkit-animation-name: glitch-switch;
+          animation-name: glitch-switch;
+}
+.reveal--0 [data-char]:after {
+  -webkit-animation-iteration-count: calc(var(--char-index) * 0.55);
+          animation-iteration-count: calc(var(--char-index) * 0.55);
+}
+.reveal--1 [data-char]:after {
+  -webkit-animation-iteration-count: 4;
+          animation-iteration-count: 4;
+}
+.reveal--2 [data-char]:after {
+  -webkit-animation-iteration-count: var(--count);
+          animation-iteration-count: var(--count);
+}
+p:nth-of-type(1) {
+  position: absolute;
+  opacity: 0;
+}
+.word {
+  position: relative;
+  display: inline-block;
+}
+[data-char] {
+  color: transparent;
+  position: relative;
+}
+[data-char]:after {
+  --txt: attr(data-char);
+  -webkit-animation-duration: 0.2s;
+          animation-duration: 0.2s;
+  -webkit-animation-delay: 0.5s;
+          animation-delay: 0.5s;
+  -webkit-animation-timing-function: steps(1);
+          animation-timing-function: steps(1);
+  -webkit-animation-fill-mode: backwards;
+          animation-fill-mode: backwards;
+  content: var(--txt);
+  color: var(--color);
+  position: absolute;
+  left: 0;
+  top: 0;
+}
+/**
+ * Themeing
+*/
+.page {
+  align-items: center;
+  display: flex;
+  height: 100vh;
+  justify-content: center;
+  position: relative;
+  scroll-snap-align: center;
+  width: 100vw;
+}
+.container {
+  height: 100vh;
+  overflow: auto;
+  overflow-x: hidden;
+  -ms-scroll-snap-type: y mandatory;
+      scroll-snap-type: y mandatory;
+}
+@-webkit-keyframes glitch-switch {
+  0% {
+    content: var(--char-0);
+  }
+  10% {
+    content: var(--char-1);
+  }
+  20% {
+    content: var(--char-2);
+  }
+  30% {
+    content: var(--char-3);
+  }
+  40% {
+    content: var(--char-4);
+  }
+  50% {
+    content: var(--char-5);
+  }
+  60% {
+    content: var(--char-6);
+  }
+  70% {
+    content: var(--char-7);
+  }
+  80% {
+    content: var(--char-8);
+  }
+  90% {
+    content: var(--char-9);
+  }
+  100% {
+    content: var(--char-0);
+  }
+}
+@keyframes glitch-switch {
+  0% {
+    content: var(--char-0);
+  }
+  10% {
+    content: var(--char-1);
+  }
+  20% {
+    content: var(--char-2);
+  }
+  30% {
+    content: var(--char-3);
+  }
+  40% {
+    content: var(--char-4);
+  }
+  50% {
+    content: var(--char-5);
+  }
+  60% {
+    content: var(--char-6);
+  }
+  70% {
+    content: var(--char-7);
+  }
+  80% {
+    content: var(--char-8);
+  }
+  90% {
+    content: var(--char-9);
+  }
+  100% {
+    content: var(--char-0);
+  }
+}
+  </style>
+</head>
+<body>
+<div class="container" data-scroll-dir-x="0" data-scroll-dir-y="0">
+  <div class="page">
+    <p data-scroll="in">Scroll for variants</p>
+    <p class="reveal--0 words chars splitting" aria-hidden="true" data-scroll="in" data-splitting="" style="--word-total: 3; --char-total: 17;"><span class="word" data-word="Scroll" style="--word-index: 0;"><span class="char" data-char="S" style="--char-index: 0; --count: 3.4266865137883533; --char-0: &quot;&gt;&quot;; --char-1: &quot;º&quot;; --char-2: &quot;/&quot;; --char-3: &quot;?&quot;; --char-4: &quot;æ&quot;; --char-5: &quot;/&quot;; --char-6: &quot;/&quot;; --char-7: &quot;¬&quot;; --char-8: &quot;÷&quot;; --char-9: &quot;`&quot;;">S</span><span class="char" data-char="c" style="--char-index: 1; --count: 2.334362603676593; --char-0: &quot;&gt;&quot;; --char-1: &quot;`&quot;; --char-2: &quot;▓&quot;; --char-3: &quot;¡&quot;; --char-4: &quot;•&quot;; --char-5: &quot;≠&quot;; --char-6: &quot;?&quot;; --char-7: &quot;˜&quot;; --char-8: &quot;¶&quot;; --char-9: &quot;`&quot;;">c</span><span class="char" data-char="r" style="--char-index: 2; --count: 4.532836514142847; --char-0: &quot;?&quot;; --char-1: &quot;£&quot;; --char-2: &quot;ª&quot;; --char-3: &quot;≈&quot;; --char-4: &quot;©&quot;; --char-5: &quot;√&quot;; --char-6: &quot;√&quot;; --char-7: &quot;˜&quot;; --char-8: &quot;ß&quot;; --char-9: &quot;¬&quot;;">r</span><span class="char" data-char="o" style="--char-index: 3; --count: 3.90989423383661; --char-0: &quot;µ&quot;; --char-1: &quot;å&quot;; --char-2: &quot;∞&quot;; --char-3: &quot;≈&quot;; --char-4: &quot;≤&quot;; --char-5: &quot;∂&quot;; --char-6: &quot;£&quot;; --char-7: &quot;?&quot;; --char-8: &quot;…&quot;; --char-9: &quot;∞&quot;;">o</span><span class="char" data-char="l" style="--char-index: 4; --count: 5.994754541498389; --char-0: &quot;ç&quot;; --char-1: &quot;`&quot;; --char-2: &quot;£&quot;; --char-3: &quot;ª&quot;; --char-4: &quot;™&quot;; --char-5: &quot;©&quot;; --char-6: &quot;≠&quot;; --char-7: &quot;√&quot;; --char-8: &quot;≤&quot;; --char-9: &quot;¶&quot;;">l</span><span class="char" data-char="l" style="--char-index: 5; --count: 5.049963580576977; --char-0: &quot;µ&quot;; --char-1: &quot;/&quot;; --char-2: &quot;∂&quot;; --char-3: &quot;¶&quot;; --char-4: &quot;≠&quot;; --char-5: &quot;¬&quot;; --char-6: &quot;æ&quot;; --char-7: &quot;&lt;&quot;; --char-8: &quot;∂&quot;; --char-9: &quot;£&quot;;">l</span></span><span class="whitespace"> </span><span class="word" data-word="for" style="--word-index: 1;"><span class="char" data-char="f" style="--char-index: 6; --count: 2.3830765583866116; --char-0: &quot;≈&quot;; --char-1: &quot;ç&quot;; --char-2: &quot;ƒ&quot;; --char-3: &quot;ß&quot;; --char-4: &quot;ß&quot;; --char-5: &quot;˙&quot;; --char-6: &quot;§&quot;; --char-7: &quot;˚&quot;; --char-8: &quot;™&quot;; --char-9: &quot;¬&quot;;">f</span><span class="char" data-char="o" style="--char-index: 7; --count: 3.808842568367999; --char-0: &quot;¡&quot;; --char-1: &quot;≥&quot;; --char-2: &quot;¶&quot;; --char-3: &quot;≤&quot;; --char-4: &quot;¢&quot;; --char-5: &quot;…&quot;; --char-6: &quot;™&quot;; --char-7: &quot;`&quot;; --char-8: &quot;`&quot;; --char-9: &quot;/&quot;;">o</span><span class="char" data-char="r" style="--char-index: 8; --count: 3.943056468874703; --char-0: &quot;¢&quot;; --char-1: &quot;≤&quot;; --char-2: &quot;ª&quot;; --char-3: &quot;÷&quot;; --char-4: &quot;ª&quot;; --char-5: &quot;&lt;&quot;; --char-6: &quot;▒&quot;; --char-7: &quot;˙&quot;; --char-8: &quot;˜&quot;; --char-9: &quot;÷&quot;;">r</span></span><span class="whitespace"> </span><span class="word" data-word="variants" style="--word-index: 2;"><span class="char" data-char="v" style="--char-index: 9; --count: 1.4022049643568204; --char-0: &quot;§&quot;; --char-1: &quot;▒&quot;; --char-2: &quot;å&quot;; --char-3: &quot;≤&quot;; --char-4: &quot;˚&quot;; --char-5: &quot;˚&quot;; --char-6: &quot;?&quot;; --char-7: &quot;&lt;&quot;; --char-8: &quot;˜&quot;; --char-9: &quot;░&quot;;">v</span><span class="char" data-char="a" style="--char-index: 10; --count: 2.113362426032622; --char-0: &quot;&gt;&quot;; --char-1: &quot;`&quot;; --char-2: &quot;√&quot;; --char-3: &quot;–&quot;; --char-4: &quot;▓&quot;; --char-5: &quot;≤&quot;; --char-6: &quot;`&quot;; --char-7: &quot;ª&quot;; --char-8: &quot;§&quot;; --char-9: &quot;≥&quot;;">a</span><span class="char" data-char="r" style="--char-index: 11; --count: 1.2574292228020714; --char-0: &quot;¢&quot;; --char-1: &quot;░&quot;; --char-2: &quot;∞&quot;; --char-3: &quot;&gt;&quot;; --char-4: &quot;≠&quot;; --char-5: &quot;º&quot;; --char-6: &quot;√&quot;; --char-7: &quot;µ&quot;; --char-8: &quot;ƒ&quot;; --char-9: &quot;▒&quot;;">r</span><span class="char" data-char="i" style="--char-index: 12; --count: 4.181197254330318; --char-0: &quot;©&quot;; --char-1: &quot;∂&quot;; --char-2: &quot;˜&quot;; --char-3: &quot;ª&quot;; --char-4: &quot;÷&quot;; --char-5: &quot;˚&quot;; --char-6: &quot;ß&quot;; --char-7: &quot;&gt;&quot;; --char-8: &quot;≤&quot;; --char-9: &quot;•&quot;;">i</span><span class="char" data-char="a" style="--char-index: 13; --count: 4.716156663329271; --char-0: &quot;≤&quot;; --char-1: &quot;∞&quot;; --char-2: &quot;/&quot;; --char-3: &quot;ƒ&quot;; --char-4: &quot;÷&quot;; --char-5: &quot;∞&quot;; --char-6: &quot;∂&quot;; --char-7: &quot;–&quot;; --char-8: &quot;™&quot;; --char-9: &quot;&gt;&quot;;">a</span><span class="char" data-char="n" style="--char-index: 14; --count: 3.684967129881784; --char-0: &quot;©&quot;; --char-1: &quot;∫&quot;; --char-2: &quot;ß&quot;; --char-3: &quot;©&quot;; --char-4: &quot;/&quot;; --char-5: &quot;∆&quot;; --char-6: &quot;¢&quot;; --char-7: &quot;/&quot;; --char-8: &quot;&gt;&quot;; --char-9: &quot;ª&quot;;">n</span><span class="char" data-char="t" style="--char-index: 15; --count: 2.7258330754192723; --char-0: &quot;▓&quot;; --char-1: &quot;¢&quot;; --char-2: &quot;™&quot;; --char-3: &quot;ª&quot;; --char-4: &quot;æ&quot;; --char-5: &quot;ƒ&quot;; --char-6: &quot;&gt;&quot;; --char-7: &quot;…&quot;; --char-8: &quot;•&quot;; --char-9: &quot;•&quot;;">t</span><span class="char" data-char="s" style="--char-index: 16; --count: 5.660773311209921; --char-0: &quot;∞&quot;; --char-1: &quot;≈&quot;; --char-2: &quot;≠&quot;; --char-3: &quot;…&quot;; --char-4: &quot;æ&quot;; --char-5: &quot;¢&quot;; --char-6: &quot;µ&quot;; --char-7: &quot;/&quot;; --char-8: &quot;æ&quot;; --char-9: &quot;≤&quot;;">s</span></span></p>
+  </div>
+  <div class="page">
+    <p data-scroll="out">All together now</p>
+    <p class="reveal--1 words chars splitting" aria-hidden="true" data-scroll="out" data-splitting="" style="--word-total: 3; --char-total: 14;"><span class="word" data-word="All" style="--word-index: 0;"><span class="char" data-char="A" style="--char-index: 0; --count: 5.376819919704118; --char-0: &quot;÷&quot;; --char-1: &quot;░&quot;; --char-2: &quot;§&quot;; --char-3: &quot;™&quot;; --char-4: &quot;˙&quot;; --char-5: &quot;£&quot;; --char-6: &quot;˙&quot;; --char-7: &quot;–&quot;; --char-8: &quot;å&quot;; --char-9: &quot;÷&quot;;">A</span><span class="char" data-char="l" style="--char-index: 1; --count: 4.437304175189233; --char-0: &quot;µ&quot;; --char-1: &quot;▒&quot;; --char-2: &quot;µ&quot;; --char-3: &quot;&lt;&quot;; --char-4: &quot;≈&quot;; --char-5: &quot;ƒ&quot;; --char-6: &quot;º&quot;; --char-7: &quot;/&quot;; --char-8: &quot;¢&quot;; --char-9: &quot;ª&quot;;">l</span><span class="char" data-char="l" style="--char-index: 2; --count: 2.310867310351779; --char-0: &quot;▓&quot;; --char-1: &quot;•&quot;; --char-2: &quot;`&quot;; --char-3: &quot;▓&quot;; --char-4: &quot;ß&quot;; --char-5: &quot;∆&quot;; --char-6: &quot;≤&quot;; --char-7: &quot;≠&quot;; --char-8: &quot;√&quot;; --char-9: &quot;√&quot;;">l</span></span><span class="whitespace"> </span><span class="word" data-word="together" style="--word-index: 1;"><span class="char" data-char="t" style="--char-index: 3; --count: 2.074464339800794; --char-0: &quot;÷&quot;; --char-1: &quot;¡&quot;; --char-2: &quot;™&quot;; --char-3: &quot;£&quot;; --char-4: &quot;º&quot;; --char-5: &quot;ƒ&quot;; --char-6: &quot;˚&quot;; --char-7: &quot;˚&quot;; --char-8: &quot;ß&quot;; --char-9: &quot;©&quot;;">t</span><span class="char" data-char="o" style="--char-index: 4; --count: 4.783904811141388; --char-0: &quot;£&quot;; --char-1: &quot;&gt;&quot;; --char-2: &quot;˚&quot;; --char-3: &quot;?&quot;; --char-4: &quot;µ&quot;; --char-5: &quot;&lt;&quot;; --char-6: &quot;░&quot;; --char-7: &quot;…&quot;; --char-8: &quot;≤&quot;; --char-9: &quot;▓&quot;;">o</span><span class="char" data-char="g" style="--char-index: 5; --count: 1.5282605059339995; --char-0: &quot;¡&quot;; --char-1: &quot;¡&quot;; --char-2: &quot;ß&quot;; --char-3: &quot;≥&quot;; --char-4: &quot;ß&quot;; --char-5: &quot;≠&quot;; --char-6: &quot;µ&quot;; --char-7: &quot;≠&quot;; --char-8: &quot;ç&quot;; --char-9: &quot;ß&quot;;">g</span><span class="char" data-char="e" style="--char-index: 6; --count: 5.490047000125076; --char-0: &quot;∞&quot;; --char-1: &quot;&lt;&quot;; --char-2: &quot;▒&quot;; --char-3: &quot;≤&quot;; --char-4: &quot;ƒ&quot;; --char-5: &quot;`&quot;; --char-6: &quot;™&quot;; --char-7: &quot;ç&quot;; --char-8: &quot;©&quot;; --char-9: &quot;ç&quot;;">e</span><span class="char" data-char="t" style="--char-index: 7; --count: 3.27135076784013; --char-0: &quot;∆&quot;; --char-1: &quot;™&quot;; --char-2: &quot;ª&quot;; --char-3: &quot;º&quot;; --char-4: &quot;˙&quot;; --char-5: &quot;™&quot;; --char-6: &quot;∆&quot;; --char-7: &quot;–&quot;; --char-8: &quot;≤&quot;; --char-9: &quot;ƒ&quot;;">t</span><span class="char" data-char="h" style="--char-index: 8; --count: 5.651223516036749; --char-0: &quot;å&quot;; --char-1: &quot;æ&quot;; --char-2: &quot;˜&quot;; --char-3: &quot;≤&quot;; --char-4: &quot;∫&quot;; --char-5: &quot;–&quot;; --char-6: &quot;¡&quot;; --char-7: &quot;∆&quot;; --char-8: &quot;…&quot;; --char-9: &quot;≤&quot;;">h</span><span class="char" data-char="e" style="--char-index: 9; --count: 2.269045145841876; --char-0: &quot;≠&quot;; --char-1: &quot;≈&quot;; --char-2: &quot;…&quot;; --char-3: &quot;≤&quot;; --char-4: &quot;/&quot;; --char-5: &quot;–&quot;; --char-6: &quot;&gt;&quot;; --char-7: &quot;¬&quot;; --char-8: &quot;ƒ&quot;; --char-9: &quot;¬&quot;;">e</span><span class="char" data-char="r" style="--char-index: 10; --count: 2.249762106672133; --char-0: &quot;≠&quot;; --char-1: &quot;¢&quot;; --char-2: &quot;¡&quot;; --char-3: &quot;©&quot;; --char-4: &quot;µ&quot;; --char-5: &quot;▓&quot;; --char-6: &quot;?&quot;; --char-7: &quot;/&quot;; --char-8: &quot;√&quot;; --char-9: &quot;¢&quot;;">r</span></span><span class="whitespace"> </span><span class="word" data-word="now" style="--word-index: 2;"><span class="char" data-char="n" style="--char-index: 11; --count: 4.234425224911392; --char-0: &quot;/&quot;; --char-1: &quot;?&quot;; --char-2: &quot;░&quot;; --char-3: &quot;¬&quot;; --char-4: &quot;…&quot;; --char-5: &quot;&lt;&quot;; --char-6: &quot;∂&quot;; --char-7: &quot;∫&quot;; --char-8: &quot;ƒ&quot;; --char-9: &quot;–&quot;;">n</span><span class="char" data-char="o" style="--char-index: 12; --count: 1.6706846932498045; --char-0: &quot;™&quot;; --char-1: &quot;▒&quot;; --char-2: &quot;≈&quot;; --char-3: &quot;▓&quot;; --char-4: &quot;ª&quot;; --char-5: &quot;?&quot;; --char-6: &quot;▓&quot;; --char-7: &quot;å&quot;; --char-8: &quot;§&quot;; --char-9: &quot;–&quot;;">o</span><span class="char" data-char="w" style="--char-index: 13; --count: 1.57826100680963; --char-0: &quot;∆&quot;; --char-1: &quot;≥&quot;; --char-2: &quot;≤&quot;; --char-3: &quot;µ&quot;; --char-4: &quot;¡&quot;; --char-5: &quot;√&quot;; --char-6: &quot;/&quot;; --char-7: &quot;•&quot;; --char-8: &quot;/&quot;; --char-9: &quot;˚&quot;;">w</span></span></p>
+  </div>
+  <div class="page">
+    <p data-scroll="out">Random iteration count</p>
+    <p class="reveal--2 words chars splitting" aria-hidden="true" data-scroll="out" data-splitting="" style="--word-total: 3; --char-total: 20;"><span class="word" data-word="Random" style="--word-index: 0;"><span class="char" data-char="R" style="--char-index: 0; --count: 2.2346455844304485; --char-0: &quot;£&quot;; --char-1: &quot;√&quot;; --char-2: &quot;¬&quot;; --char-3: &quot;§&quot;; --char-4: &quot;§&quot;; --char-5: &quot;å&quot;; --char-6: &quot;–&quot;; --char-7: &quot;≤&quot;; --char-8: &quot;√&quot;; --char-9: &quot;˚&quot;;">R</span><span class="char" data-char="a" style="--char-index: 1; --count: 2.505769820814806; --char-0: &quot;…&quot;; --char-1: &quot;ƒ&quot;; --char-2: &quot;∞&quot;; --char-3: &quot;¡&quot;; --char-4: &quot;¢&quot;; --char-5: &quot;√&quot;; --char-6: &quot;√&quot;; --char-7: &quot;&gt;&quot;; --char-8: &quot;/&quot;; --char-9: &quot;∫&quot;;">a</span><span class="char" data-char="n" style="--char-index: 2; --count: 1.189606353847248; --char-0: &quot;∫&quot;; --char-1: &quot;¡&quot;; --char-2: &quot;§&quot;; --char-3: &quot;æ&quot;; --char-4: &quot;÷&quot;; --char-5: &quot;å&quot;; --char-6: &quot;∆&quot;; --char-7: &quot;¶&quot;; --char-8: &quot;∞&quot;; --char-9: &quot;–&quot;;">n</span><span class="char" data-char="d" style="--char-index: 3; --count: 1.2879828828946813; --char-0: &quot;≤&quot;; --char-1: &quot;÷&quot;; --char-2: &quot;√&quot;; --char-3: &quot;˚&quot;; --char-4: &quot;™&quot;; --char-5: &quot;ç&quot;; --char-6: &quot;£&quot;; --char-7: &quot;–&quot;; --char-8: &quot;/&quot;; --char-9: &quot;˚&quot;;">d</span><span class="char" data-char="o" style="--char-index: 4; --count: 2.7787158764209687; --char-0: &quot;÷&quot;; --char-1: &quot;˙&quot;; --char-2: &quot;å&quot;; --char-3: &quot;ß&quot;; --char-4: &quot;µ&quot;; --char-5: &quot;≥&quot;; --char-6: &quot;÷&quot;; --char-7: &quot;▒&quot;; --char-8: &quot;…&quot;; --char-9: &quot;`&quot;;">o</span><span class="char" data-char="m" style="--char-index: 5; --count: 3.899148383919534; --char-0: &quot;…&quot;; --char-1: &quot;░&quot;; --char-2: &quot;∫&quot;; --char-3: &quot;å&quot;; --char-4: &quot;∂&quot;; --char-5: &quot;`&quot;; --char-6: &quot;░&quot;; --char-7: &quot;¢&quot;; --char-8: &quot;˙&quot;; --char-9: &quot;/&quot;;">m</span></span><span class="whitespace"> </span><span class="word" data-word="iteration" style="--word-index: 1;"><span class="char" data-char="i" style="--char-index: 6; --count: 1.7083972732521682; --char-0: &quot;÷&quot;; --char-1: &quot;≥&quot;; --char-2: &quot;∆&quot;; --char-3: &quot;▓&quot;; --char-4: &quot;∞&quot;; --char-5: &quot;?&quot;; --char-6: &quot;ª&quot;; --char-7: &quot;˜&quot;; --char-8: &quot;∞&quot;; --char-9: &quot;¶&quot;;">i</span><span class="char" data-char="t" style="--char-index: 7; --count: 4.120537927319866; --char-0: &quot;ç&quot;; --char-1: &quot;`&quot;; --char-2: &quot;º&quot;; --char-3: &quot;░&quot;; --char-4: &quot;¶&quot;; --char-5: &quot;º&quot;; --char-6: &quot;˜&quot;; --char-7: &quot;∞&quot;; --char-8: &quot;▒&quot;; --char-9: &quot;§&quot;;">t</span><span class="char" data-char="e" style="--char-index: 8; --count: 5.8709092835569034; --char-0: &quot;√&quot;; --char-1: &quot;å&quot;; --char-2: &quot;…&quot;; --char-3: &quot;▓&quot;; --char-4: &quot;∫&quot;; --char-5: &quot;/&quot;; --char-6: &quot;▓&quot;; --char-7: &quot;™&quot;; --char-8: &quot;√&quot;; --char-9: &quot;ß&quot;;">e</span><span class="char" data-char="r" style="--char-index: 9; --count: 2.5237823782922186; --char-0: &quot;–&quot;; --char-1: &quot;˚&quot;; --char-2: &quot;£&quot;; --char-3: &quot;?&quot;; --char-4: &quot;¡&quot;; --char-5: &quot;░&quot;; --char-6: &quot;˙&quot;; --char-7: &quot;£&quot;; --char-8: &quot;÷&quot;; --char-9: &quot;ß&quot;;">r</span><span class="char" data-char="a" style="--char-index: 10; --count: 2.829319562810685; --char-0: &quot;¢&quot;; --char-1: &quot;¬&quot;; --char-2: &quot;∆&quot;; --char-3: &quot;§&quot;; --char-4: &quot;░&quot;; --char-5: &quot;▒&quot;; --char-6: &quot;▒&quot;; --char-7: &quot;≠&quot;; --char-8: &quot;░&quot;; --char-9: &quot;§&quot;;">a</span><span class="char" data-char="t" style="--char-index: 11; --count: 3.0881088787318944; --char-0: &quot;å&quot;; --char-1: &quot;∞&quot;; --char-2: &quot;∂&quot;; --char-3: &quot;&lt;&quot;; --char-4: &quot;©&quot;; --char-5: &quot;å&quot;; --char-6: &quot;&lt;&quot;; --char-7: &quot;√&quot;; --char-8: &quot;∫&quot;; --char-9: &quot;¶&quot;;">t</span><span class="char" data-char="i" style="--char-index: 12; --count: 3.257550016196948; --char-0: &quot;▒&quot;; --char-1: &quot;–&quot;; --char-2: &quot;≠&quot;; --char-3: &quot;ƒ&quot;; --char-4: &quot;§&quot;; --char-5: &quot;/&quot;; --char-6: &quot;–&quot;; --char-7: &quot;&lt;&quot;; --char-8: &quot;∆&quot;; --char-9: &quot;/&quot;;">i</span><span class="char" data-char="o" style="--char-index: 13; --count: 5.535515679214707; --char-0: &quot;≥&quot;; --char-1: &quot;≥&quot;; --char-2: &quot;░&quot;; --char-3: &quot;÷&quot;; --char-4: &quot;¶&quot;; --char-5: &quot;˙&quot;; --char-6: &quot;≈&quot;; --char-7: &quot;µ&quot;; --char-8: &quot;º&quot;; --char-9: &quot;?&quot;;">o</span><span class="char" data-char="n" style="--char-index: 14; --count: 5.130486992071766; --char-0: &quot;≠&quot;; --char-1: &quot;`&quot;; --char-2: &quot;™&quot;; --char-3: &quot;÷&quot;; --char-4: &quot;ç&quot;; --char-5: &quot;≥&quot;; --char-6: &quot;ß&quot;; --char-7: &quot;•&quot;; --char-8: &quot;˜&quot;; --char-9: &quot;&gt;&quot;;">n</span></span><span class="whitespace"> </span><span class="word" data-word="count" style="--word-index: 2;"><span class="char" data-char="c" style="--char-index: 15; --count: 1.0088640217033475; --char-0: &quot;?&quot;; --char-1: &quot;?&quot;; --char-2: &quot;▒&quot;; --char-3: &quot;÷&quot;; --char-4: &quot;∞&quot;; --char-5: &quot;&lt;&quot;; --char-6: &quot;¶&quot;; --char-7: &quot;¢&quot;; --char-8: &quot;∞&quot;; --char-9: &quot;¶&quot;;">c</span><span class="char" data-char="o" style="--char-index: 16; --count: 4.181785115962369; --char-0: &quot;…&quot;; --char-1: &quot;▓&quot;; --char-2: &quot;¡&quot;; --char-3: &quot;≈&quot;; --char-4: &quot;˙&quot;; --char-5: &quot;≠&quot;; --char-6: &quot;`&quot;; --char-7: &quot;`&quot;; --char-8: &quot;…&quot;; --char-9: &quot;≠&quot;;">o</span><span class="char" data-char="u" style="--char-index: 17; --count: 5.4796518671468615; --char-0: &quot;˚&quot;; --char-1: &quot;ß&quot;; --char-2: &quot;&gt;&quot;; --char-3: &quot;&lt;&quot;; --char-4: &quot;˙&quot;; --char-5: &quot;å&quot;; --char-6: &quot;∫&quot;; --char-7: &quot;§&quot;; --char-8: &quot;≠&quot;; --char-9: &quot;&lt;&quot;;">u</span><span class="char" data-char="n" style="--char-index: 18; --count: 4.896486256716807; --char-0: &quot;/&quot;; --char-1: &quot;∂&quot;; --char-2: &quot;æ&quot;; --char-3: &quot;å&quot;; --char-4: &quot;™&quot;; --char-5: &quot;º&quot;; --char-6: &quot;▒&quot;; --char-7: &quot;▒&quot;; --char-8: &quot;¶&quot;; --char-9: &quot;¢&quot;;">n</span><span class="char" data-char="t" style="--char-index: 19; --count: 3.5439141403926513; --char-0: &quot;©&quot;; --char-1: &quot;æ&quot;; --char-2: &quot;?&quot;; --char-3: &quot;æ&quot;; --char-4: &quot;∂&quot;; --char-5: &quot;▒&quot;; --char-6: &quot;ƒ&quot;; --char-7: &quot;˙&quot;; --char-8: &quot;/&quot;; --char-9: &quot;µ&quot;;">t</span></span></p>
+  </div>
+</div>
+  <script src="https://unpkg.com/splitting/dist/splitting.js"></script>
+  <script src="https://unpkg.com/scroll-out/dist/scroll-out.min.js"></script>
+  <script>
+const { Splitting } = window;
+const results = Splitting();
+const glitches = '`¡™£¢∞§¶•ªº–≠åß∂ƒ©˙∆˚¬…æ≈ç√∫˜µ≤≥÷/?░▒▓<>/'.split('');
+
+for (let r = 0; r < results.length; r++) {if (window.CP.shouldStopExecution(0)) break;
+  const chars = results[r].chars;
+  for (let c = 0; c < chars.length; c++) {if (window.CP.shouldStopExecution(1)) break;
+    chars[c].style.setProperty('--count', Math.random() * 5 + 1);
+    for (let g = 0; g < 10; g++) {if (window.CP.shouldStopExecution(2)) break;
+      chars[c].style.setProperty(
+      `--char-${g}`,
+      `"${glitches[Math.floor(Math.random() * glitches.length)]}"`);
+
+    }window.CP.exitedLoop(2);
+  }window.CP.exitedLoop(1);
+}window.CP.exitedLoop(0);
+window.ScrollOut({
+  scrollingElement: '.container',
+  targets: 'p' });
+  </script>
+</body>
+</html>

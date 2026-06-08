@@ -1,0 +1,37 @@
+{
+  "reminders": {
+        "title": "Reminders",
+        "items": [
+            {
+            "id": 1,
+            "reminder": "Ego has no place in working with your team.",
+            "quote": {
+                "text": "Pride is concerned with who is right. Humility is concerned with what is right.",
+                "author": "Ezra Taft Benson",
+                "notes": null
+            },
+            "action_focus": "When presenting your circuit design today, ask for feedback from at least one team member before declaring it \"done.\" Their input might catch something you missed—ego-free eyes see more."
+            },
+            {
+            "id": 2,
+            "reminder": "Small habits compound into massive results.",
+            "quote": {
+                "text": "Habits are the compound interest of self-improvement. The same way that money multiplies through compound interest, the effects of your habits multiply as you repeat them.",
+                "author": "James Clear",
+                "notes": null
+            },
+            "action_focus": "After finishing one task today, take 30 seconds to set up the next one. Leave yourself a note, open the file, prep the tool. Make starting easy tomorrow."
+            },
+            {
+            "id": 3,
+            "reminder": "Always assume good intentions of others.",
+            "quote": {
+                "text": "We judge ourselves by our intentions and others by their behavior. Flip that script.",
+                "author": "Stephen Covey",
+                "notes": "adapted"
+            },
+            "action_focus": "If someone pushes back on your idea today, mentally complete this sentence before responding: \"They want to help by...\" Then address that concern directly."
+            }
+        ]
+    }
+}

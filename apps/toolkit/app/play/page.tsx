@@ -19,6 +19,10 @@ import { useSession } from "@/lib/use-session";
 // the next step (the StoreProvider write survives the client navigation).
 type Phase = "loading" | "ready" | "playing" | "error";
 
+// Configured Storage base URL for resolving relative media keys. A bucket move or
+// CDN front is a change to this env var, not a data rewrite.
+const ASSET_BASE = process.env.NEXT_PUBLIC_STORAGE_BASE_URL ?? "";
+
 export default function PlayPage() {
   const router = useRouter();
   const session = useSession();
@@ -56,7 +60,7 @@ export default function PlayPage() {
         }
         // Buffer all media (images + audio) before enabling Begin, so the moment
         // plays instantly with no black-frame pop-in between slides.
-        await preloadPresentationMedia(p, (loaded, total) => {
+        await preloadPresentationMedia(p, ASSET_BASE, (loaded, total) => {
           if (!cancelled) setProgress({ loaded, total });
         });
         if (cancelled) return;
@@ -85,7 +89,11 @@ export default function PlayPage() {
   return (
     <div className="fixed inset-0 z-[60] flex items-center justify-center bg-black">
       {phase === "playing" && presentation ? (
-        <PresentationPlayer presentation={presentation} onComplete={finish} />
+        <PresentationPlayer
+          presentation={presentation}
+          onComplete={finish}
+          assetBaseUrl={ASSET_BASE}
+        />
       ) : phase === "error" ? (
         <div className="flex flex-col items-center gap-6 px-8 text-center">
           <p className="max-w-xs text-sm text-pewter">

@@ -2,6 +2,16 @@
 
 Reference document for building and maintaining visual effects in the Wisdom presentation engine. **Read this before creating, modifying, or debugging any effect.**
 
+> **Effects now live in `@harbor/player`, not in this app.** The concepts below
+> (lifecycle, SplitText, duration/speed, config schema, CodePen porting) still
+> apply, but the source paths moved: effects are under
+> `packages/player/src/components/effects/`, the registry is
+> `packages/player/src/components/effects/registry.ts`, and registration is
+> `packages/player/src/registerEffects.ts` (the old `components/effects/index.ts`
+> here is a re-export shim). Effect internal sizes use the responsive helpers in
+> `packages/player/src/lib/responsive.ts`. See
+> [PLAYBACK.md](../../../packages/player/docs/PLAYBACK.md).
+
 ## Architecture Overview
 
 Effects are self-registering React components that plug into the rendering pipeline:

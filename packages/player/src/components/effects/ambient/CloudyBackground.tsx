@@ -4,7 +4,6 @@ import React, { useRef, useMemo } from 'react';
 import { EffectProps, EffectDefinition, ConfigSchema } from '../../../types/effects';
 import { useEffectLifecycle } from '../../../hooks/useEffectLifecycle';
 import { SPEED_MULTIPLIERS, SpeedOption } from '../../../lib/effects/speed';
-import { cqHeight, useBaseCanvas } from '../../../lib/responsive';
 import gsap from 'gsap';
 
 const configSchema: ConfigSchema = {
@@ -61,7 +60,6 @@ const BASE_DURATIONS = [20, 15, 17]; // seconds per layer
 const DRIFT_WIDTHS = [1000, 1000, 1579]; // px per layer
 
 export function CloudyBackground({ config, isActive }: EffectProps) {
-  const base = useBaseCanvas();
   const cloudColor = config.cloudColor || '#ffffff';
   const speed = (config.speed || 'medium') as SpeedOption;
   const cloudOpacity = config.opacity ?? 0.4;
@@ -131,7 +129,9 @@ export function CloudyBackground({ config, isActive }: EffectProps) {
                 top: 0,
                 left: 0,
                 right: 0,
-                height: cqHeight(500, base),
+                // Matches the cloud PNG's natural height (it fades out at its
+                // bottom). Image-intrinsic, not a responsive authored dimension.
+                height: '500px',
                 animation: `${id}-drift-${i} ${dur}s infinite linear`,
                 filter: isWhite ? undefined : `drop-shadow(0 0 0 ${cloudColor})`,
               }}

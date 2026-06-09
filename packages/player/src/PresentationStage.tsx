@@ -2,10 +2,14 @@
 
 import * as React from "react";
 import { BaseCanvas, DEFAULT_BASE, SizingContext } from "./lib/responsive";
+import { AssetContext } from "./lib/assets";
 
 export interface PresentationStageProps {
   baseWidth?: number;
   baseHeight?: number;
+  // Storage base URL for resolving relative media keys (effects read it via
+  // useAssetUrl). The toolkit /play and the studio sandbox both supply it.
+  assetBaseUrl?: string;
   className?: string;
   style?: React.CSSProperties;
   children?: React.ReactNode;
@@ -22,6 +26,7 @@ export interface PresentationStageProps {
 export function PresentationStage({
   baseWidth,
   baseHeight,
+  assetBaseUrl,
   className,
   style,
   children,
@@ -35,6 +40,7 @@ export function PresentationStage({
   );
 
   return (
+    <AssetContext.Provider value={assetBaseUrl ?? ""}>
     <SizingContext.Provider value={value}>
       <div
         className={className}
@@ -51,5 +57,6 @@ export function PresentationStage({
         {children}
       </div>
     </SizingContext.Provider>
+    </AssetContext.Provider>
   );
 }

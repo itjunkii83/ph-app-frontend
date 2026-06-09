@@ -8,6 +8,10 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 > not here. The motivation moment plays via `@harbor/player` on the chromeless
 > `/play` route, fed by today's presentation read from Firestore
 > (`lib/presentations.ts`). See the root `CLAUDE.md` for the workspace overview.
+>
+> **Read the docs before any work (required):** the root [`docs/`](../../docs/)
+> (architecture, media model) and this app's [`docs/MOMENT.md`](./docs/MOMENT.md)
+> before touching the moment / playback. Update the relevant doc in the same change.
 
 ## Commands
 

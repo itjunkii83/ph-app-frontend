@@ -6,6 +6,7 @@ import { getSections } from "./lib/presentation/normalize";
 import { getEffect } from "./components/effects/registry";
 import { SectionRenderer } from "./components/engine/SectionRenderer";
 import { PresentationStage } from "./PresentationStage";
+import { resolveAssetUrl } from "./lib/assets";
 import { registerEffects } from "./registerEffects";
 
 // Guarantee every effect is registered before the first render.
@@ -15,6 +16,8 @@ export interface PresentationPlayerProps {
   presentation: Presentation;
   onComplete: () => void;
   className?: string;
+  // Storage base URL for resolving relative media keys (config.src, audioUrl).
+  assetBaseUrl?: string;
 }
 
 interface PlaybackStep {
@@ -63,11 +66,15 @@ export function PresentationPlayer({
   presentation,
   onComplete,
   className,
+  assetBaseUrl,
 }: PresentationPlayerProps) {
   const sections = React.useMemo(() => getSections(presentation), [presentation]);
   const baseWidth = presentation.settings?.baseWidth || 1920;
   const baseHeight = presentation.settings?.baseHeight || 1080;
-  const audioUrl = presentation.settings?.audioUrl;
+  const resolvedAudioUrl = resolveAssetUrl(
+    presentation.settings?.audioUrl,
+    assetBaseUrl ?? "",
+  );
 
   const steps = React.useMemo<PlaybackStep[]>(() => {
     const out: PlaybackStep[] = [];
@@ -163,8 +170,8 @@ export function PresentationPlayer({
 
   // Native audio. The /play route's in-route Begin tap is the autoplay gesture.
   React.useEffect(() => {
-    if (!audioUrl) return;
-    const audio = new Audio(audioUrl);
+    if (!resolvedAudioUrl) return;
+    const audio = new Audio(resolvedAudioUrl);
     audio.loop = true;
     void audio.play().catch(() => {
       /* autoplay blocked: the /play gesture normally prevents this */
@@ -173,13 +180,14 @@ export function PresentationPlayer({
       audio.pause();
       audio.src = "";
     };
-  }, [audioUrl]);
+  }, [resolvedAudioUrl]);
 
   return (
     <PresentationStage
       className={className}
       baseWidth={baseWidth}
       baseHeight={baseHeight}
+      assetBaseUrl={assetBaseUrl}
     >
       {entries.map((entry, i) => {
         const section = sections[entry.sectionIndex];

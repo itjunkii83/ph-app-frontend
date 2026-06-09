@@ -11,10 +11,8 @@
     "esModuleInterop": true,
     "resolveJsonModule": true,
     "isolatedModules": true,
-    "verbatimModuleSyntax": false,
     "noEmit": true,
-    "allowJs": true,
-    "baseUrl": "."
+    "allowJs": true
   },
   "include": ["src"],
   "exclude": ["node_modules"]

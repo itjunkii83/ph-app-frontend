@@ -45,6 +45,9 @@ export {
 // Media preloading (buffer a presentation before playback).
 export { preloadPresentationMedia, preloadImage } from "./lib/preload";
 
+// Asset resolution: relative Storage keys -> URLs against a configured base.
+export { resolveAssetUrl, useAssetUrl, PUBLIC_MEDIA_PREFIX } from "./lib/assets";
+
 // Duration + font loading utilities.
 export { calculateReadingDuration, getTextStats } from "./lib/duration";
 export { loadFont, loadFonts } from "./lib/fonts/loader";

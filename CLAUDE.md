@@ -3,6 +3,18 @@
 This is a pnpm workspace holding two Next.js 16 apps and one shared package. For
 app-specific guidance, read the CLAUDE.md inside each app.
 
+> **Read the docs before any work — this is required, not optional.** The `docs/`
+> folders capture architecture, decisions, invariants, and gotchas that are not
+> obvious from the source (the media model, the player engine, the `/play` flow).
+> Read and digest the relevant ones before changing code or planning a change:
+> - [docs/ARCHITECTURE.md](./docs/ARCHITECTURE.md) — monorepo, the Presentation-JSON boundary, dev workflow, Firebase.
+> - [docs/MEDIA.md](./docs/MEDIA.md) — relative-key media model, Storage rules, Cache-Control, CORS.
+> - [packages/player/docs/PLAYBACK.md](./packages/player/docs/PLAYBACK.md) — the playback engine, effects, responsive sizing, the orchestrator.
+> - [apps/toolkit/docs/MOMENT.md](./apps/toolkit/docs/MOMENT.md) — how the toolkit plays a presentation on `/play`.
+> - [apps/studio/docs/MEDIA_AUTHORING.md](./apps/studio/docs/MEDIA_AUTHORING.md) + [EFFECT_SYSTEM.md](./apps/studio/docs/EFFECT_SYSTEM.md) — authoring, uploads, building effects.
+>
+> When you touch an area, update its doc in the same change.
+
 ## Layout
 
 ```

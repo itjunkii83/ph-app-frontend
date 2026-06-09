@@ -2,6 +2,7 @@
 
 import React from 'react';
 import { EffectProps, EffectDefinition, ConfigSchema } from '../../../types/effects';
+import { useAssetUrl } from '../../../lib/assets';
 
 const configSchema: ConfigSchema = {
   src: {
@@ -51,7 +52,7 @@ const configSchema: ConfigSchema = {
 };
 
 export function BackgroundImage({ config }: EffectProps) {
-  const src = config.src || '';
+  const src = useAssetUrl(config.src);
   const fit = config.fit || 'cover';
   const position = config.position || 'center';
   const blur = config.blur ?? 0;

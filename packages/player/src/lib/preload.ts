@@ -1,15 +1,20 @@
 import { Presentation } from "../types/presentation";
 import { getSections } from "./presentation/normalize";
+import { resolveAssetUrl } from "./assets";
 
 // Warm the browser cache for every asset a presentation references, so playback
-// runs with no black-frame pop-in (the moment should buffer like a video, then
-// play instantly). Image layers warm via Image(); the soundtrack warms via Audio
-// with a safety cap so a large file can't stall the start indefinitely.
+// runs with no black-frame pop-in (the moment buffers like a video, then plays
+// instantly). Stored values are relative keys; they are resolved against the
+// configured Storage base before warming. Image layers warm via Image(); the
+// soundtrack warms via Audio with a safety cap so a large file can't stall start.
 
-function collect(presentation: Presentation): { images: string[]; audio: string | null } {
+function collectRaw(presentation: Presentation): {
+  images: string[];
+  audio: string | null;
+} {
   const images = new Set<string>();
   const add = (u: unknown) => {
-    if (typeof u === "string" && /^https?:/i.test(u)) images.add(u);
+    if (typeof u === "string" && u.trim()) images.add(u);
   };
   for (const section of getSections(presentation)) {
     for (const l of section.stageLayers || []) add(l?.config?.src);
@@ -17,8 +22,7 @@ function collect(presentation: Presentation): { images: string[]; audio: string 
       for (const l of slide.layers || []) add(l?.config?.src);
   }
   const audioRaw = presentation.settings?.audioUrl;
-  const audio =
-    typeof audioRaw === "string" && /^https?:/i.test(audioRaw) ? audioRaw : null;
+  const audio = typeof audioRaw === "string" && audioRaw.trim() ? audioRaw : null;
   return { images: Array.from(images), audio };
 }
 
@@ -48,17 +52,23 @@ function preloadAudio(url: string): Promise<void> {
 }
 
 /**
- * Resolves once all referenced media has loaded (or settled). `onProgress` fires
- * after each asset finishes (and once up front with 0), so the UI can show a real
- * progress bar.
+ * Resolves once all referenced media has loaded (or settled). `base` is the
+ * Storage base URL used to resolve relative keys. `onProgress` fires after each
+ * asset finishes (and once up front with 0) so the UI can show a real progress
+ * bar.
  */
 export async function preloadPresentationMedia(
   presentation: Presentation,
+  base: string,
   onProgress?: (loaded: number, total: number) => void,
 ): Promise<void> {
-  const { images, audio } = collect(presentation);
-  const tasks: Promise<void>[] = images.map(preloadImage);
-  if (audio) tasks.push(preloadAudio(audio));
+  const { images, audio } = collectRaw(presentation);
+  const imageUrls = images.map((k) => resolveAssetUrl(k, base)).filter(Boolean);
+  const audioUrl = audio ? resolveAssetUrl(audio, base) : "";
+
+  const tasks: Promise<void>[] = imageUrls.map(preloadImage);
+  if (audioUrl) tasks.push(preloadAudio(audioUrl));
+
   const total = tasks.length;
   let loaded = 0;
   onProgress?.(0, total);

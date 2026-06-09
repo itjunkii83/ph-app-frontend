@@ -12,6 +12,12 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 > player through thin re-export shims at the old `@/types/*`,
 > `@/components/effects/*`, `@/lib/duration`, and `@/lib/fonts/loader` paths. Media
 > uploads go to Firebase Storage via `app/api/media`. See the root `CLAUDE.md`.
+>
+> **Read the docs before any work (required):** the root [`docs/`](../../docs/)
+> (architecture, media model), this app's
+> [`docs/MEDIA_AUTHORING.md`](./docs/MEDIA_AUTHORING.md), and
+> [`docs/EFFECT_SYSTEM.md`](./docs/EFFECT_SYSTEM.md) before building effects. Update
+> the relevant doc in the same change.
 
 ## Commands
 

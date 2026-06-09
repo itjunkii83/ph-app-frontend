@@ -4,6 +4,7 @@ import React, { useRef } from 'react';
 import { EffectProps, EffectDefinition, ConfigSchema } from '../../../types/effects';
 import { useEffectLifecycle } from '../../../hooks/useEffectLifecycle';
 import { SPEED_MULTIPLIERS, SpeedOption } from '../../../lib/effects/speed';
+import { useAssetUrl } from '../../../lib/assets';
 import gsap from 'gsap';
 
 const configSchema: ConfigSchema = {
@@ -60,7 +61,7 @@ const configSchema: ConfigSchema = {
 };
 
 export function KenBurnsImage({ config, isActive, durationMs }: EffectProps) {
-  const src = config.src || '';
+  const src = useAssetUrl(config.src);
   const fit = config.fit || 'cover';
   const direction = config.direction || 'zoom-in';
   const speed = (config.speed || 'medium') as SpeedOption;

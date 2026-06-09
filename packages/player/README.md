@@ -5,6 +5,9 @@ effect library, the effect hooks, duration logic, font loading, and the
 `PresentationPlayer` orchestrator. Both apps (`apps/toolkit`, `apps/studio`)
 import from here so there is exactly one copy of the effect code.
 
+> **Architecture + how-to-extend:** [docs/PLAYBACK.md](./docs/PLAYBACK.md).
+> **Media model:** [../../docs/MEDIA.md](../../docs/MEDIA.md).
+
 ## Hard rules
 
 - **No `next/*` imports and no firebase imports** anywhere in `src/`. It is a

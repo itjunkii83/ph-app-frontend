@@ -12,6 +12,7 @@ app-specific guidance, read the CLAUDE.md inside each app.
 > - [packages/player/docs/PLAYBACK.md](./packages/player/docs/PLAYBACK.md) — the playback engine, effects, responsive sizing, the orchestrator.
 > - [apps/toolkit/docs/MOMENT.md](./apps/toolkit/docs/MOMENT.md) — how the toolkit plays a presentation on `/play`.
 > - [apps/studio/docs/MEDIA_AUTHORING.md](./apps/studio/docs/MEDIA_AUTHORING.md) + [EFFECT_SYSTEM.md](./apps/studio/docs/EFFECT_SYSTEM.md) — authoring, uploads, building effects.
+> - [docs/CODEPEN.md](./docs/CODEPEN.md) — `tools/codepen`, the extractor where every effect starts as a downloaded CodePen.
 >
 > When you touch an area, update its doc in the same change.
 

@@ -254,7 +254,7 @@ const resetToIdle = useCallback((el: HTMLElement) => {
 
 ## Porting Effects from CodePen References
 
-Reference pens are stored in `tools/codepen/pens/`. When adapting a CodePen into a Wisdom effect:
+Reference pens are stored in `tools/codepen/pens/`. They get there via the CodePen extractor — see [docs/CODEPEN.md](../../../docs/CODEPEN.md) for how a pen is downloaded, compiled to standalone HTML, and cataloged. When adapting a CodePen into a Wisdom effect:
 
 ### Process
 

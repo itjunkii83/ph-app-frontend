@@ -58,6 +58,7 @@ function listPens(db) {
       filename,
       title: data.title,
       tags: data.tags || [],
+      starred: !!data.starred,
       mtime: (() => {
         try {
           return fs.statSync(path.join(PENS_DIR, filename)).mtimeMs;
@@ -66,7 +67,8 @@ function listPens(db) {
         }
       })(),
     }))
-    .sort((a, b) => b.mtime - a.mtime);
+    // Starred pens float to the top; ties fall through to newest-first.
+    .sort((a, b) => b.starred - a.starred || b.mtime - a.mtime);
 }
 
 // --- Request body parser ---
@@ -362,6 +364,20 @@ const HTML = `<!DOCTYPE html>
       background: #30363d;
       color: #e6edf3;
     }
+    .code-btn:disabled {
+      opacity: 0.4;
+      cursor: default;
+    }
+    .star-btn.active {
+      color: #e3b341;
+      border-color: #e3b341;
+    }
+    .delete-btn:hover {
+      background: #f8514922;
+      border-color: #f85149;
+      color: #f85149;
+    }
+    .pen-star { color: #e3b341; }
     .preview {
       flex: 1;
       background: #161b22;
@@ -471,7 +487,9 @@ const HTML = `<!DOCTYPE html>
         </button>
         <div class="filter-dropdown" id="filter-dropdown"></div>
       </div>
+      <button class="code-btn star-btn" id="star-btn" title="Star pen (pin to top)" disabled>&#9733;</button>
       <button class="code-btn" id="code-btn" title="View source code" disabled>&lt;/&gt;</button>
+      <button class="code-btn delete-btn" id="delete-btn" title="Delete pen" disabled>&#128465;</button>
     </div>
   </div>
 
@@ -517,6 +535,8 @@ const HTML = `<!DOCTYPE html>
     const codeContent = document.getElementById("code-content");
     const filterBtn = document.getElementById("filter-btn");
     const filterDropdown = document.getElementById("filter-dropdown");
+    const starBtn = document.getElementById("star-btn");
+    const deleteBtn = document.getElementById("delete-btn");
 
     let currentFile = null;
     let allPens = [];
@@ -549,9 +569,23 @@ const HTML = `<!DOCTYPE html>
       currentFile = filename;
       preview.innerHTML = '<iframe src="/pens/' + filename + '"></iframe>';
       codeBtn.disabled = false;
+      deleteBtn.disabled = false;
+      starBtn.disabled = false;
+      const pen = allPens.find(p => p.filename === filename);
+      starBtn.classList.toggle("active", !!(pen && pen.starred));
       document.querySelectorAll(".sidebar a").forEach(a => {
         a.classList.toggle("active", a.dataset.file === filename);
       });
+      renderTagBar();
+    }
+
+    function clearSelection() {
+      currentFile = null;
+      preview.innerHTML = '<span class="empty">Paste a CodePen URL above to get started</span>';
+      codeBtn.disabled = true;
+      starBtn.disabled = true;
+      deleteBtn.disabled = true;
+      starBtn.classList.remove("active");
       renderTagBar();
     }
 
@@ -562,7 +596,7 @@ const HTML = `<!DOCTYPE html>
       penList.innerHTML = filtered.map(p =>
         '<li><a href="#" data-file="' + p.filename + '"' +
         (p.filename === currentFile ? ' class="active"' : '') +
-        '>' + p.title + '</a></li>'
+        '>' + (p.starred ? '<span class="pen-star">&#9733;</span> ' : '') + p.title + '</a></li>'
       ).join("");
     }
 
@@ -675,6 +709,32 @@ const HTML = `<!DOCTYPE html>
       codeModal.classList.add("open");
     });
 
+    // Star / unstar the selected pen (pins it to the top of the list)
+    starBtn.addEventListener("click", async () => {
+      if (!currentFile) return;
+      const pen = allPens.find(p => p.filename === currentFile);
+      const newStarred = !(pen && pen.starred);
+      await fetch("/api/pens/" + encodeURIComponent(currentFile) + "/star", {
+        method: "PUT",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ starred: newStarred }),
+      });
+      starBtn.classList.toggle("active", newStarred);
+      // Reload so the server re-sorts; currentFile keeps the pen highlighted.
+      await loadPenList();
+    });
+
+    // Delete the selected pen (removes the file + its record)
+    deleteBtn.addEventListener("click", async () => {
+      if (!currentFile) return;
+      const pen = allPens.find(p => p.filename === currentFile);
+      const title = pen ? pen.title : currentFile;
+      if (!confirm('Delete "' + title + '"? This removes the file from pens/ (shared, committed source).')) return;
+      await fetch("/api/pens/" + encodeURIComponent(currentFile), { method: "DELETE" });
+      clearSelection();
+      await loadPenList();
+    });
+
     codeModalClose.addEventListener("click", () => {
       codeModal.classList.remove("open");
     });
@@ -753,6 +813,30 @@ const server = http.createServer(async (req, res) => {
     return;
   }
 
+  // Delete a pen (file + record)
+  if (req.method === "DELETE" && url.pathname.match(/^\/api\/pens\/([^/]+)$/)) {
+    const filename = decodeURIComponent(url.pathname.match(/^\/api\/pens\/([^/]+)$/)[1]);
+    const safe = path.basename(filename);
+    const filePath = path.join(PENS_DIR, safe);
+
+    const db = loadDb();
+    try {
+      if (fs.existsSync(filePath)) fs.unlinkSync(filePath);
+    } catch (err) {
+      res.writeHead(500, { "Content-Type": "application/json" });
+      res.end(JSON.stringify({ error: err.message }));
+      return;
+    }
+    // Drop the record explicitly so pens.json is correct immediately
+    // (syncPens would prune it on the next read, but don't rely on that).
+    delete db.pens[safe];
+    saveDb(db);
+
+    res.writeHead(200, { "Content-Type": "application/json" });
+    res.end(JSON.stringify({ ok: true }));
+    return;
+  }
+
   // Toggle tag on a pen
   if (req.method === "PUT" && url.pathname.match(/^\/api\/pens\/(.+)\/tags$/)) {
     const filename = decodeURIComponent(url.pathname.match(/^\/api\/pens\/(.+)\/tags$/)[1]);
@@ -777,6 +861,29 @@ const server = http.createServer(async (req, res) => {
 
     res.writeHead(200, { "Content-Type": "application/json" });
     res.end(JSON.stringify({ ok: true, tags: db.pens[filename].tags }));
+    return;
+  }
+
+  // Set starred state on a pen (pins it to the top of the list)
+  if (req.method === "PUT" && url.pathname.match(/^\/api\/pens\/(.+)\/star$/)) {
+    const filename = decodeURIComponent(url.pathname.match(/^\/api\/pens\/(.+)\/star$/)[1]);
+    const body = JSON.parse(await readBody(req));
+    const starred = !!body.starred;
+
+    const db = loadDb();
+    if (!db.pens[filename]) {
+      res.writeHead(404, { "Content-Type": "application/json" });
+      res.end(JSON.stringify({ error: "Pen not found" }));
+      return;
+    }
+
+    // Only persist when true — omit the field otherwise to keep pens.json minimal.
+    if (starred) db.pens[filename].starred = true;
+    else delete db.pens[filename].starred;
+    saveDb(db);
+
+    res.writeHead(200, { "Content-Type": "application/json" });
+    res.end(JSON.stringify({ ok: true, starred }));
     return;
   }
 

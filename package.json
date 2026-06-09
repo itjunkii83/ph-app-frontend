@@ -10,5 +10,8 @@
     "dev:studio": "pnpm --filter wisdom dev",
     "build:toolkit": "pnpm --filter wisdom-toolkit build",
     "build:studio": "pnpm --filter wisdom build"
+  },
+  "devDependencies": {
+    "nodemon": "^3.1.14"
   }
 }

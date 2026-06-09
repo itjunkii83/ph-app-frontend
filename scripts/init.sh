@@ -1,15 +1,13 @@
 #!/bin/bash
-# ~/bin/itrip
+# scripts/init.sh — open an iTerm window with the three wisdom-toolkit dev servers
 
-DIR1="$HOME/Documents/Websites/kora-cloud-admin"
-DIR2="$HOME/Documents/Websites/kora-cloud-authority"
-DIR3="$HOME/Documents/Websites/kora-cloud-api"
-DIR4="$HOME/Documents/Websites/kora-cloud-simulator"
+DIR1="$HOME/Documents/Personal/wisdom-toolkit/apps/studio"
+DIR2="$HOME/Documents/Personal/wisdom-toolkit/apps/toolkit"
+DIR3="$HOME/Documents/Personal/wisdom-toolkit/apps/studio/tools/codepen"
 
-NAME1="ADMIN"
-NAME2="AUTHORITY"
-NAME3="API"
-NAME4="SIMULATOR"
+NAME1="STUDIO"
+NAME2="HARBOR"
+NAME3="CODEPEN"
 
 CMD="pnpm dev"
 
@@ -17,42 +15,30 @@ CMD="pnpm dev"
 B1=$(echo -n "$NAME1" | base64)
 B2=$(echo -n "$NAME2" | base64)
 B3=$(echo -n "$NAME3" | base64)
-B4=$(echo -n "$NAME4" | base64)
 
 osascript <<EOF
 tell application "iTerm"
   activate
   create window with default profile
   tell current window
-    -- top-left
+    -- left (full height)
     tell current session
       set name to "$NAME1"
       write text "printf '\\\\e]1337;SetBadgeFormat=%s\\\\a' '$B1' && cd $DIR1 && $CMD"
-      set topRight to (split vertically with default profile)
+      set rightPane to (split vertically with default profile)
     end tell
-    
+
     -- top-right
-    tell topRight
+    tell rightPane
       set name to "$NAME2"
       write text "printf '\\\\e]1337;SetBadgeFormat=%s\\\\a' '$B2' && cd $DIR2 && $CMD"
-    end tell
-    
-    -- bottom-left
-    tell first session of current tab
-      set bottomLeft to (split horizontally with default profile)
-    end tell
-    tell bottomLeft
-      set name to "$NAME3"
-      write text "printf '\\\\e]1337;SetBadgeFormat=%s\\\\a' '$B3' && cd $DIR3 && $CMD"
-    end tell
-    
-    -- bottom-right
-    tell topRight
       set bottomRight to (split horizontally with default profile)
     end tell
+
+    -- bottom-right
     tell bottomRight
-      set name to "$NAME4"
-      write text "printf '\\\\e]1337;SetBadgeFormat=%s\\\\a' '$B4' && cd $DIR4 && kemu"
+      set name to "$NAME3"
+      write text "printf '\\\\e]1337;SetBadgeFormat=%s\\\\a' '$B3' && cd $DIR3 && $CMD"
     end tell
   end tell
 end tell

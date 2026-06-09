@@ -79,3 +79,4 @@ There is no test framework. Verify with `build` (tsc) + `lint` + the package
 - [apps/toolkit/docs/MOMENT.md](../apps/toolkit/docs/MOMENT.md) — the `/play` moment.
 - [apps/studio/docs/MEDIA_AUTHORING.md](../apps/studio/docs/MEDIA_AUTHORING.md) — authoring + uploads.
 - [apps/studio/docs/EFFECT_SYSTEM.md](../apps/studio/docs/EFFECT_SYSTEM.md) — building effects (now in the player package).
+- [docs/CODEPEN.md](./CODEPEN.md) — `tools/codepen`, the extractor that sources every effect from a CodePen.

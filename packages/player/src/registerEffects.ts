@@ -7,6 +7,7 @@ import {
 } from "./components/effects/text";
 import { cloudyBackgroundDefinition } from "./components/effects/ambient";
 import { kenBurnsImageDefinition } from "./components/effects/image";
+import { oceanDefinition } from "./components/effects/webgl";
 
 let registered = false;
 
@@ -24,4 +25,5 @@ export function registerEffects(): void {
   registerEffect(cloudyBackgroundDefinition);
   registerEffect(kenBurnsImageDefinition);
   registerEffect(maskedTextRevealDefinition);
+  registerEffect(oceanDefinition);
 }

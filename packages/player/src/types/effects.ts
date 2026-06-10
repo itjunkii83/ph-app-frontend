@@ -36,6 +36,10 @@ export interface ConfigFieldSchema {
   min?: number;
   max?: number;
   step?: number;
+  // Optional collapsible section the field belongs to in the config panel
+  // (e.g. 'Sky', 'Water'). Fields without a group render flat, as before;
+  // grouped fields are bucketed by insertion order. See EffectConfigurator.
+  group?: string;
 }
 
 export type ConfigSchema = Record<string, ConfigFieldSchema>;

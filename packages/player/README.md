@@ -13,7 +13,9 @@ import from here so there is exactly one copy of the effect code.
 - **No `next/*` imports and no firebase imports** anywhere in `src/`. It is a
   plain React 19 client-component library.
 - **`react`/`react-dom` are peer dependencies** (provided by the consuming app);
-  `gsap` is a bundled dependency.
+  `gsap` is a bundled dependency. `three` is also bundled, but **dynamically
+  imported** by WebGL effects (`lib/three`), so it is code-split out of the base
+  bundle and only loads when such an effect actually renders.
 - It styles itself with inline styles only and does not depend on either app's
   Tailwind config.
 - Both apps compile it **from source via `transpilePackages`** (no build step);
@@ -65,3 +67,18 @@ import from here so there is exactly one copy of the effect code.
 
 Authored px inside effects must use the responsive helpers (`cqFontSize`, etc.),
 not fixed `px`/`vw`/`vh`, so they adapt to the container in any orientation.
+
+### WebGL (three.js) effects
+
+three.js effects live in `src/components/effects/webgl/` and reuse the foundation
+in `src/lib/three/`:
+
+- `useThreeEffect(hostRef, factory, config)` owns the `WebGLRenderer`, the
+  animation loop, `ResizeObserver` sizing, live `applyConfig`, and teardown.
+- A `ThreeSceneFactory` (`lib/three/types.ts`) builds the scene and returns a
+  `ThreeSceneHandle` (`render`/`resize`/`applyConfig`/`dispose`). A new three.js
+  effect is just a new factory paired with a thin component (see `OceanBackground`).
+- three and its addons are imported **dynamically inside the factory**, so they
+  stay code-split — keep new factories the same way (no top-level `three` imports).
+- The clouds-enabled `Sky` is vendored at `lib/three/vendor/SkyClouds.js` (stock
+  three.js has no clouds); `Water`/`UnrealBloomPass` come from `three/addons/*`.

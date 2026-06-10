@@ -3,7 +3,8 @@
 
 DIR1="$HOME/Documents/Personal/wisdom-toolkit/apps/studio"
 DIR2="$HOME/Documents/Personal/wisdom-toolkit/apps/toolkit"
-DIR3="$HOME/Documents/Personal/wisdom-toolkit/apps/studio/tools/codepen"
+# DIR3="$HOME/Documents/Personal/wisdom-toolkit/apps/studio/tools/codepen"
+DIR3="$HOME/Documents/Personal/wisdom-toolkit/tools/codepen"
 
 NAME1="STUDIO"
 NAME2="HARBOR"

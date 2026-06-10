@@ -68,6 +68,28 @@ The studio sandbox renders `SectionRenderer` directly inside a `PresentationStag
 - `EffectRenderer` computes `durationMs` from the effect's `duration` mode
   (`fixed` | `auto` = reading time from text | `indefinite`).
 
+### WebGL (three.js) effects
+
+WebGL effects (`components/effects/webgl/`, e.g. Ocean) sit on a small foundation in
+`lib/three/`:
+
+- `useThreeEffect(hostRef, factory, config)` lazy-`import('three')`s, creates one
+  `WebGLRenderer` (HDR `HalfFloatType` output + ACES tone mapping, capped pixel
+  ratio) sized to the host element, runs `setAnimationLoop`, keeps the renderer and
+  scene in sync with the responsive container via `ResizeObserver`, pushes live
+  config edits through `applyConfig`, and disposes everything on unmount (including
+  the unmount-before-the-async-`import`-resolves race).
+- A `ThreeSceneFactory` returns a `ThreeSceneHandle`
+  (`render`/`resize`/`applyConfig`/`dispose`); adding a three.js effect = writing a
+  factory. The component just pairs `useThreeEffect` with `useEffectLifecycle` — the
+  lifecycle fades the wrapper's opacity in/out while the canvas keeps drawing.
+- three and its addons are imported **dynamically inside the factory**, so three
+  (~700 KB) is code-split and never enters a presentation's bundle unless a WebGL
+  effect renders. The clouds-enabled `Sky` is vendored (`lib/three/vendor/SkyClouds.js`);
+  `Water`/`UnrealBloomPass` are stock `three/addons/*`. Config fields can set
+  `group` to render under collapsible sections in the studio panel (Ocean uses Sky /
+  Water / Bloom / Clouds).
+
 See [EFFECT_SYSTEM.md](../../../apps/studio/docs/EFFECT_SYSTEM.md) for the deep
 guide on building effects (SplitText, duration/speed, config schema, CodePen ports).
 Note its file paths now point here (`packages/player/src/components/effects/...`).

@@ -47,6 +47,7 @@ Place it in the appropriate category folder under `components/effects/`:
 - `backgrounds/` — Static or animated backgrounds
 - `ambient/` — Environmental/atmospheric effects
 - `image/` — Image-based effects
+- `webgl/` — three.js / WebGL effects (see [WebGL (three.js) effects](#webgl-threejs-effects))
 
 ### Step 2: Define the Config Schema
 
@@ -69,6 +70,10 @@ const configSchema: ConfigSchema = {
 ```
 
 Available field types: `string`, `number`, `boolean`, `color`, `select`, `image`, `font`, `range`.
+
+Add `group: 'Sky'` (etc.) to a field to place it under a collapsible section in the
+debug panel. Fields without `group` render flat, before any groups; groups appear in
+schema-insertion order. The Ocean effect uses this for **Sky / Water / Bloom / Clouds**.
 
 ### Step 3: Implement the Component
 
@@ -319,6 +324,48 @@ tools/codepen/pens/
 - **SplitText vs Splitting.js** — Some pens use Splitting.js. We use GSAP's SplitText plugin exclusively. The API differs but the concept is the same.
 - **Canvas/WebGL pens** — Set `technology: 'canvas'` or `'webgl'` in the definition. Handle cleanup in `onDispose`. Use refs for the canvas element.
 
+## WebGL (three.js) effects
+
+three.js effects live in `packages/player/src/components/effects/webgl/` and reuse a
+small foundation in `packages/player/src/lib/three/`. They are still ordinary
+`EffectDefinition`s (so they appear in the sandbox and play back in the toolkit), but
+the animation/teardown lives in a hook rather than in `useEffectLifecycle`.
+
+**The foundation:**
+
+- `useThreeEffect(hostRef, factory, config)` — owns the `WebGLRenderer` (HDR
+  `HalfFloatType` output + ACES tone mapping, capped pixel ratio), the animation loop
+  (`setAnimationLoop`), `ResizeObserver`-based sizing against the responsive
+  container, live `applyConfig` on config edits, and full disposal on unmount.
+- `ThreeSceneFactory` / `ThreeSceneHandle` (`lib/three/types.ts`) — a factory builds
+  the scene and returns `{ render, resize, applyConfig, dispose }`. **A new three.js
+  effect is just a new factory** plus a thin component that pairs `useThreeEffect`
+  with `useEffectLifecycle` (the lifecycle only fades the wrapper's opacity in/out;
+  the canvas keeps drawing).
+
+**Rules / gotchas:**
+
+- **Import three dynamically inside the factory** (`await import('three')`,
+  `await import('three/addons/...')`). `useThreeEffect` passes in the already-loaded
+  `THREE`. No top-level `three` imports anywhere in the static chain — that is what
+  keeps three (~700 KB) code-split so non-WebGL presentations never load it.
+- `three` is loosely typed (`any`) on purpose: r184 adds `renderer.setEffects()` /
+  `outputBufferType` which `@types/three` doesn't cover yet. Untyped addon specifiers
+  are declared `any` in `lib/three/three-addons.d.ts`.
+- Vendored vs. stock: the clouds-enabled `Sky` is vendored at
+  `lib/three/vendor/SkyClouds.js` (stock three.js `Sky` has no clouds — re-vendor it
+  if you bump three). `Water` and `UnrealBloomPass` are imported from
+  `three/addons/*`.
+- Dispose in the handle: detach passes (`renderer.setEffects([])`), dispose
+  geometries/materials/textures/render-targets/PMREM. `useThreeEffect` then disposes
+  the renderer and drops the canvas (which frees anything still on the GL context).
+- Use `group` on config fields for the collapsible panel sections (Ocean: Sky /
+  Water / Bloom / Clouds).
+
+The **Ocean** effect (`webgl/OceanBackground.tsx` + `oceanScene.ts`) is the worked
+example, ported from the three.js `webgl_shaders_ocean` r184 demo (minus its bobbing
+box, OrbitControls, stats, and lil-gui — it uses a static camera).
+
 ## Existing Effects Reference
 
 | Effect | Category | Duration | Lifecycle | Technology | Key Feature |
@@ -329,3 +376,4 @@ tools/codepen/pens/
 | BackgroundImage | background | indefinite | None | css | Static image with CSS filters |
 | CloudyBackground | ambient | indefinite | enter + exit | css | Drifting cloud layers via CSS keyframes |
 | KenBurnsImage | image | fixed (8s) | enter + active + exit | css | Slow zoom on image |
+| Ocean | background | indefinite | enter + exit (fade) | webgl | three.js ocean + dynamic sky, clouds, bloom |

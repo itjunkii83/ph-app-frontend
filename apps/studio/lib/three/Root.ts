@@ -1,7 +1,8 @@
 // @ts-nocheck
 import { ACESFilmicToneMapping, Clock,PerspectiveCamera, Scene, Vector2, Vector3 } from "three/webgpu";
 import { IAnimatedElement } from "./interfaces/IAnimatedElement";
-import { pass, PostProcessing, WebGPURenderer } from "three/webgpu";
+import { PostProcessing, WebGPURenderer } from "three/webgpu";
+import { pass } from "three/tsl"; // r184: `pass` is a TSL function, not a three/webgpu export
 import WebGPU from "three/examples/jsm/capabilities/WebGPU.js";
 import { LinkedParticles } from "./LinkedParticles";
 

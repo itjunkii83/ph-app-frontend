@@ -2,8 +2,29 @@
 // @ts-nocheck
 import { Pointer } from "./Pointer";
 import { IAnimatedElement } from "./interfaces/IAnimatedElement";
-import { color, loop, float, If, instanceIndex, min, mix, mx_fractal_noise_float, SpriteNodeMaterial, storage, StorageBufferAttribute, StorageInstancedBufferAttribute, timerDelta, tslFn, uniform, uv, vec3, WebGPURenderer, vec2, sin, cos, PI2, step, smoothstep, abs, sub, mul, atan2, PI, max, positionWorld, mx_fractal_noise_vec3, AdditiveBlending, MeshBasicNodeMaterial, DoubleSide, varying, clamp, sign, dot, length, MathUtils, timerGlobal, BackSide, acos, fract, floor, mod, pcurve, PostProcessing, pass, bloom, rgbShift, viewportTopLeft, Float32BufferAttribute, ShaderNodeObject, StorageBufferNode, Vector2, ACESFilmicToneMapping, cameraPosition } from "three/webgpu";
-import { BufferGeometry, DynamicDrawUsage, IcosahedronGeometry, InstancedMesh, Mesh, PerspectiveCamera, Plane, PlaneGeometry, Scene, Vector3 } from "three/webgpu";
+// three r184 migration: TSL helpers come from `three/tsl`, node-material classes
+// and the renderer from `three/webgpu`, and the post-processing display nodes
+// (bloom/rgbShift/gaussianBlur/anamorphic/fxaa) moved to `three/addons/tsl/display/*`.
+// Renames applied below: Fn→Fn, timerGlobal→time, timerDelta→deltaTime,
+// viewportTopLeft→screenUV, loop→Loop, atan2→atan, color.hue()→hue(color, …).
+import {
+	color, Loop, float, If, instanceIndex, min, mix, mx_fractal_noise_float, storage,
+	deltaTime, Fn, uniform, uv, vec3, vec2, sin, cos, PI2, step, smoothstep, abs, sub,
+	mul, atan, PI, max, positionWorld, mx_fractal_noise_vec3, varying, clamp, sign, dot,
+	length, time, acos, fract, floor, mod, pcurve, pass, screenUV, cameraPosition, hue,
+} from "three/tsl";
+import {
+	SpriteNodeMaterial, StorageBufferAttribute, StorageInstancedBufferAttribute,
+	WebGPURenderer, AdditiveBlending, MeshBasicNodeMaterial, DoubleSide, MathUtils,
+	BackSide, PostProcessing, Float32BufferAttribute, Vector2, ACESFilmicToneMapping,
+	BufferGeometry, DynamicDrawUsage, IcosahedronGeometry, InstancedMesh, Mesh,
+	PerspectiveCamera, Plane, PlaneGeometry, Scene, Vector3,
+} from "three/webgpu";
+import { bloom } from "three/addons/tsl/display/BloomNode.js";
+import { rgbShift } from "three/addons/tsl/display/RGBShiftNode.js";
+import { gaussianBlur } from "three/addons/tsl/display/GaussianBlurNode.js";
+import { anamorphic } from "three/addons/tsl/display/AnamorphicNode.js";
+import { fxaa } from "three/addons/tsl/display/FXAANode.js";
 import { Root } from "./Root";
 
 /**
@@ -73,8 +94,8 @@ export class LinkedParticles implements IAnimatedElement {
 
 	// starts to slow down at 32768 particles on my machine, you might have better luck. But it's doesn't really need more, the effect works well at 16384 or less
 	nbParticles: number = Math.pow(2, 14); // 10:1024, 11:2048, 12:4096, 13:8192, 14:16384, 15:32768, 16:65536
-	partPositions: ShaderNodeObject<StorageBufferNode>;
-	partVelocities: ShaderNodeObject<StorageBufferNode>;
+	partPositions: any;
+	partVelocities: any;
 
 	async initParticles() {
 
@@ -90,16 +111,16 @@ export class LinkedParticles implements IAnimatedElement {
 		partMat.depthWrite = false;
 		partMat.positionNode = partPositions.toAttribute();
 		partMat.scaleNode = vec2(this.uParticleSize);
-		partMat.rotationNode = atan2(partVelocities.toAttribute().y, partVelocities.toAttribute().x);
-		partMat.colorNode = tslFn(() => {
+		partMat.rotationNode = atan(partVelocities.toAttribute().y, partVelocities.toAttribute().x);
+		partMat.colorNode = Fn(() => {
 			const life = partPositions.toAttribute().w;
 			const modLife = pcurve(life.oneMinus(), 8.0, 1.0);
 			const col = this.getInstanceColor(instanceIndex);
-			const pulse = pcurve(sin(timerGlobal(5.0).add(instanceIndex.toFloat().mul(0.1))).mul(0.5).add(0.5), 0.5, 0.5).mul(10).add(1.0);
+			const pulse = pcurve(sin(time.mul(5.0).add(instanceIndex.toFloat().mul(0.1))).mul(0.5).add(0.5), 0.5, 0.5).mul(10).add(1.0);
 			return col.mul(pulse).mul(modLife);
 		})();
 
-		partMat.opacityNode = tslFn(() => {
+		partMat.opacityNode = Fn(() => {
 			//const circle = uv().xy.sub(.5).length().sub(.5);
 			const hex = this.sdHexagon(uv().xy.sub(.5), .5);
 			const life = partPositions.toAttribute().w;
@@ -122,7 +143,7 @@ export class LinkedParticles implements IAnimatedElement {
 	}
 
 	// for each particle set position and velocity to 0, and lifetime to -1
-	initParticlesCp = tslFn(() => {
+	initParticlesCp = Fn(() => {
 
 		const { partPositions, partVelocities } = this;
 		partPositions.element(instanceIndex).xyz.assign(vec3(0.0));
@@ -171,7 +192,7 @@ export class LinkedParticles implements IAnimatedElement {
 		linkMat.depthTest = false;
 		linkMat.blending = AdditiveBlending;
 		linkMat.colorNode = color(0xffffff);
-		linkMat.opacityNode = tslFn(() => {
+		linkMat.opacityNode = Fn(() => {
 
 			const part = storage(vertSBA, 'vec4', vertSBA.count).toAttribute();
 			const o = part.w; // opacity is linked to the particle lifetime, stored in the w component its position
@@ -192,7 +213,7 @@ export class LinkedParticles implements IAnimatedElement {
 	}
 
 	// for each particle, find the two closest particles and create a quad to each of them
-	updateParticlesCp = tslFn(() => {
+	updateParticlesCp = Fn(() => {
 
 		const { nbParticles, partPositions, partVelocities, uTimeScale, uParticleLifetime } = this;
 		const { turbFrequency, turbOctaves, turbAmplitude, turbLacunarity, turbGain } = this;
@@ -201,7 +222,7 @@ export class LinkedParticles implements IAnimatedElement {
 		const velocity = partVelocities.element(instanceIndex).xyz;
 		const life = partPositions.element(instanceIndex).w;
 
-		const dt = timerDelta(0.1).mul(uTimeScale);
+		const dt = deltaTime.mul(0.1).mul(uTimeScale);
 
 		If(life.greaterThan(0.0), () => {
 
@@ -222,7 +243,7 @@ export class LinkedParticles implements IAnimatedElement {
 			const closestLife2 = float(0.0).toVar();
 
 			// could be way more optimized with some space partitioning.
-			loop({ type: 'uint', start: 0, end: nbParticles, condition: '<' }, ({ i }) => {
+			Loop({ type: 'uint', start: 0, end: nbParticles, condition: '<' }, ({ i }) => {
 
 				const otherPart = partPositions.element(i);
 
@@ -283,7 +304,7 @@ export class LinkedParticles implements IAnimatedElement {
 			const l1 = max(0.0, min(closestLife1, life)).pow(0.8); // pow is here to apply a slight curve to the opacity
 			const l2 = max(0.0, min(closestLife2, life)).pow(0.8);
 
-			loop({ type: 'uint', start: 0, end: 4, condition: '<' }, ({ i }) => {
+			Loop({ type: 'uint', start: 0, end: 4, condition: '<' }, ({ i }) => {
 				lColors.element(lIndex1.add(i)).xyz.assign(col);
 				lColors.element(lIndex2.add(i)).xyz.assign(col);
 				lPositions.element(lIndex1.add(i)).w.assign(l1);
@@ -294,9 +315,9 @@ export class LinkedParticles implements IAnimatedElement {
 
 	})().compute(this.nbParticles);
 
-	getInstanceColor = tslFn(([i_immutable]) => {
+	getInstanceColor = Fn(([i_immutable]) => {
 		// color is based on the particle index, time, and a noise function
-		return color(0x0000FF).hue(this.uColorOffset.add(mx_fractal_noise_float(i_immutable.toFloat().mul(0.1), 2, 2.0, 0.5, this.uColorVariance)));
+		return hue(color(0x0000FF), this.uColorOffset.add(mx_fractal_noise_float(i_immutable.toFloat().mul(0.1), 2, 2.0, 0.5, this.uColorVariance)));
 	});
 
 	uSpawnIndex = uniform(0);
@@ -304,7 +325,7 @@ export class LinkedParticles implements IAnimatedElement {
 	uSpawnPosition = uniform(vec3(0.0));
 	uSpawnPositionBefore = uniform(vec3(0.0));
 	// spawns particles at the cursor position, with a bit of randomness, for a number of particles defined by uSpawnCursorNb, "Spawn rate" in the GUI
-	spawnParticlesCursorCp = tslFn(() => {
+	spawnParticlesCursorCp = Fn(() => {
 
 		const { partPositions, partVelocities, uSpawnIndex, nbParticles } = this;
 		const pIndex = uSpawnIndex.add(instanceIndex).remainder(nbParticles).toInt(); // position in buffer
@@ -335,20 +356,20 @@ export class LinkedParticles implements IAnimatedElement {
 		// a large icosaedron with a hexagonal pattern
 		const geom: BufferGeometry = new IcosahedronGeometry(100, 1);
 		const mat: MeshBasicNodeMaterial = new MeshBasicNodeMaterial();
-		mat.colorNode = tslFn(() => {
+		mat.colorNode = Fn(() => {
 			const npos = positionWorld.xyz.normalize();
-			const theta = atan2(npos.z, npos.x);
+			const theta = atan(npos.z, npos.x);
 			const phi = acos(npos.y);
 			const dcol = color(0x000000).toVar();
 			const st = vec2(theta, phi.add(1.0).mul(1.0)).toVar();
-			st.y.addAssign(timerGlobal(0.1));
+			st.y.addAssign(time.mul(0.1));
 			st.x.mulAssign(0.5);
 			const n2 = mx_fractal_noise_float(st, 4, 2.0, 0.5, 0.5).add(0.5); // for the highlight pattern
 			const icol = this.getInstanceColor(0);
 			dcol.assign(mix(color(0x050505), icol.mul(1.5), this.cubicPulse(0.5, 0.02, n2)).pow(2.0));
 			const pattern = this.hexagonPattern(vec2(phi, theta).mul(10.0)); // the hexagonal cells, 2d id in xy and distance in z
 			const n = pattern.z;
-			const lit = smoothstep(0.8, 1.0, mx_fractal_noise_float(pattern.xy.add(timerGlobal(.25)), 2, 2.0, 0.5, 0.5).add(0.5)); //  hex cell lights up
+			const lit = smoothstep(0.8, 1.0, mx_fractal_noise_float(pattern.xy.add(time.mul(.25)), 2, 2.0, 0.5, 0.5).add(0.5)); //  hex cell lights up
 			// mixing it all together
 			return mix(dcol, mix(dcol.mul(0.5), mix(color(0x151515), icol, lit), smoothstep(0.02, 0.03, n)), smoothstep(0.0, 0.02, n));
 		})();
@@ -362,12 +383,12 @@ export class LinkedParticles implements IAnimatedElement {
 	bloomPass;
 	initPost() {
 
-		const cornerDist = viewportTopLeft.distance(.5).mul(2.0).clamp();
+		const cornerDist = screenUV.distance(.5).mul(2.0).clamp();
 		const scenePass = pass(this.scene, this.camera);
 		const scenePassColor = scenePass.getTextureNode('output');
 		// blurring the sides
 		const blurFac = cornerDist.pow(8.0).mul(this.uUseBlur);
-		const blurred = scenePassColor.gaussianBlur(blurFac);
+		const blurred = gaussianBlur(scenePassColor, blurFac);
 
 		// bloom, with params in GUI
 		const bloomPass = bloom(scenePass, 1.0, .25, 0.1);
@@ -376,12 +397,12 @@ export class LinkedParticles implements IAnimatedElement {
 		// big rgb shift on the side
 		const shift = rgbShift(blurred.add(bloomPass));
 		shift.amount = cornerDist.pow(4.0).mul(0.004).mul(this.uUseRGBShift);
-		shift.angle = atan2(viewportTopLeft.y.sub(.5), viewportTopLeft.x.sub(.5));
+		shift.angle = atan(screenUV.y.sub(.5), screenUV.x.sub(.5));
 
 		// anamorphic "lens flare"
-		const anamorphic = scenePass.anamorphic(2.0, 5.0, 32);
-		anamorphic.resolution = new Vector2(0.2, 0.2);
-		this.post.outputNode = shift.add(anamorphic.mul(0.2).mul(this.uUseAnamorphic)).fxaa();
+		const anamorphicPass = anamorphic(scenePass, 2.0, 5.0, 32);
+		anamorphicPass.resolution = new Vector2(0.2, 0.2);
+		this.post.outputNode = fxaa(shift.add(anamorphicPass.mul(0.2).mul(this.uUseAnamorphic)));
 	}
 
 
@@ -406,7 +427,7 @@ export class LinkedParticles implements IAnimatedElement {
 
 	////////////////////////////////////////////////////////////////////////////////////
 	/** transpiled utilities, from or inspired by Inigo Quilez */
-	cubicPulse = /*#__PURE__*/ tslFn(([c_immutable, w_immutable, x_immutable]) => {
+	cubicPulse = /*#__PURE__*/ Fn(([c_immutable, w_immutable, x_immutable]) => {
 
 		const x = float(x_immutable).toVar();
 		const w = float(w_immutable).toVar();
@@ -431,7 +452,7 @@ export class LinkedParticles implements IAnimatedElement {
 		]
 	});
 
-	sdHexagon = tslFn(([p_immutable, r_immutable]) => {
+	sdHexagon = Fn(([p_immutable, r_immutable]) => {
 
 		const r = float(r_immutable).toVar();
 		const p = vec2(p_immutable).toVar();
@@ -451,7 +472,7 @@ export class LinkedParticles implements IAnimatedElement {
 		]
 	});
 
-	hexagonPattern = /*#__PURE__*/ tslFn(([p_immutable]) => {
+	hexagonPattern = /*#__PURE__*/ Fn(([p_immutable]) => {
 
 		const p = vec2(p_immutable).toVar();
 		const q = vec2(p.x.mul(2.0).mul(0.577350269), p.y.add(p.x.mul(0.577350269))).toVar();

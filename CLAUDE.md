@@ -16,6 +16,8 @@ app-specific guidance, read the CLAUDE.md inside each app.
 >
 > When you touch an area, update its doc in the same change.
 
+When a task is complicated always create a to do list.
+
 ## Layout
 
 ```

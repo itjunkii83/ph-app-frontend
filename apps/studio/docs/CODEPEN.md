@@ -1,4 +1,4 @@
-# CodePen Extractor (`apps/studio/tools/codepen`)
+# CodePen Extractor (`tools/codepen`)
 
 The **front door of the effect pipeline.** Every visual effect in the player
 begins life as someone else's CodePen. This tool pulls a pen's HTML/CSS/JS down
@@ -14,7 +14,7 @@ codepen.io/{user}/pen/{id}
 extract.js  ── puppeteer scrapes the editor, compiles preprocessors,
    │           reassembles ONE standalone .html (no build step needed)
    ▼
-apps/studio/tools/codepen/pens/{snake_case_title}.html   +   pens.json (title, tags)
+tools/codepen/pens/{snake_case_title}.html   +   pens.json (title, tags)
    │  browse / preview / tag in the local catalog UI (server.js, :3333)
    ▼
 hand-port into a player effect   →  see apps/studio/docs/EFFECT_SYSTEM.md
@@ -31,12 +31,11 @@ saved pen to a registered effect is a human/Claude task and is documented in
 
 ## Where it sits in the monorepo
 
-`apps/studio/tools/codepen` is a **standalone Node tool, not a workspace member.**
-It is nested inside `apps/studio`, but the pnpm workspace globs only the top level
-of `apps/*` and `packages/*` (see `pnpm-workspace.yaml`) — a nested subdirectory is
-not its own workspace package — so this tool keeps its **own** `package.json` and
-`node_modules` and its own dependency (`puppeteer`). It does not import from — and is
-not imported by — the apps or the player. The handoff to the rest of the repo is
+`tools/codepen` is a **standalone Node tool, not a workspace member.** The pnpm
+workspace globs only `apps/*` and `packages/*` (see `pnpm-workspace.yaml`), so
+this tool has its **own** `package.json`, `pnpm-lock.yaml`, and `node_modules`,
+and its own dependency (`puppeteer`). It does not import from — and is not
+imported by — the apps or the player. The handoff to the rest of the repo is
 purely the saved `.html` files a human reads while building an effect.
 
 The curated `pens/` library **is committed to git** (it is the team's shared
@@ -46,10 +45,10 @@ the directory present even when empty.
 ## Running it
 
 Install and run from inside the tool — **not** from the repo root, since it is
-not a workspace member:
+outside the workspace:
 
 ```bash
-cd apps/studio/tools/codepen
+cd tools/codepen
 pnpm install        # pulls puppeteer; downloads a Chromium (allowed via package.json "onlyBuiltDependencies")
 pnpm dev            # == node server.js  → http://localhost:3333
 ```
@@ -180,8 +179,8 @@ A single JSON file, the source of truth for titles, tags, and starred state:
 ## Gotchas / invariants
 
 - **Standalone, not a workspace package.** `pnpm install` / `pnpm dev` must be run
-  from `apps/studio/tools/codepen`, not the repo root. The root `pnpm`/`build`/`lint`
-  scripts never touch it.
+  from `tools/codepen`, not the repo root. The root `pnpm`/`build`/`lint` scripts
+  never touch it.
 - **Extraction is coupled to CodePen's editor DOM.** The selectors
   (`#box-html/css/js .CodeMirror`, `#view-compiled-*`, `#editable-title-span`,
   `#result` + the `CodePen`-named frame, `#rendered-js`, the `*-resource` inputs)

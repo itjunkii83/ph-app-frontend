@@ -17,6 +17,12 @@ import {
   SelectValue,
 } from '@/components/ui/select';
 import { Separator } from '@/components/ui/separator';
+import {
+  Collapsible,
+  CollapsibleContent,
+  CollapsibleTrigger,
+} from '@/components/ui/collapsible';
+import { ChevronDown } from 'lucide-react';
 import { StorageImagePicker } from '@/components/debug/StorageImagePicker';
 
 interface EffectConfiguratorProps {
@@ -196,6 +202,38 @@ function FieldControl({
   }
 }
 
+// A collapsible, labeled section of config fields (e.g. "Sky", "Water"). Effects
+// opt in by setting `group` on their schema fields; ungrouped effects never
+// render one of these.
+function ConfigGroup({
+  title,
+  children,
+}: {
+  title: string;
+  children: React.ReactNode;
+}) {
+  const [open, setOpen] = useState(true);
+  return (
+    <Collapsible
+      open={open}
+      onOpenChange={setOpen}
+      className="space-y-3 border-t border-border/40 pt-3"
+    >
+      <CollapsibleTrigger asChild>
+        <button className="flex w-full items-center gap-1.5 text-xs font-semibold uppercase tracking-wider text-muted-foreground transition-colors hover:text-foreground">
+          <ChevronDown
+            className={`h-3 w-3 transition-transform ${open ? '' : '-rotate-90'}`}
+          />
+          {title}
+        </button>
+      </CollapsibleTrigger>
+      <CollapsibleContent className="space-y-3 pt-1">
+        {children}
+      </CollapsibleContent>
+    </Collapsible>
+  );
+}
+
 export function EffectConfigurator({
   effectType,
   config,
@@ -224,21 +262,46 @@ export function EffectConfigurator({
 
   const schema = effect.configSchema;
 
+  // Split fields into a flat ungrouped list (rendered first, as before) and
+  // collapsible groups, bucketed by `group` in schema-insertion order.
+  const entries = Object.entries(schema).filter(
+    ([key]) => !excludeFields?.includes(key),
+  );
+  const ungrouped = entries.filter(([, s]) => !s.group);
+  const groupOrder: string[] = [];
+  const groups: Record<string, [string, ConfigFieldSchema][]> = {};
+  for (const [key, s] of entries) {
+    if (!s.group) continue;
+    if (!groups[s.group]) {
+      groups[s.group] = [];
+      groupOrder.push(s.group);
+    }
+    groups[s.group].push([key, s]);
+  }
+
+  const renderField = ([key, fieldSchema]: [string, ConfigFieldSchema]) => (
+    <FieldControl
+      key={key}
+      fieldKey={key}
+      schema={fieldSchema}
+      value={config[key]}
+      onChange={(val) => onChange({ ...config, [key]: val })}
+      activeFonts={fieldSchema.type === 'font' ? activeFonts : undefined}
+    />
+  );
+
   return (
     <div className="space-y-3">
       <h4 className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">
         {effect.name} Settings
       </h4>
 
-      {Object.entries(schema).filter(([key]) => !excludeFields?.includes(key)).map(([key, fieldSchema]) => (
-        <FieldControl
-          key={key}
-          fieldKey={key}
-          schema={fieldSchema}
-          value={config[key]}
-          onChange={(val) => onChange({ ...config, [key]: val })}
-          activeFonts={fieldSchema.type === 'font' ? activeFonts : undefined}
-        />
+      {ungrouped.map(renderField)}
+
+      {groupOrder.map((groupName) => (
+        <ConfigGroup key={groupName} title={groupName}>
+          {groups[groupName].map(renderField)}
+        </ConfigGroup>
       ))}
 
       {layer && onLayerChange && (

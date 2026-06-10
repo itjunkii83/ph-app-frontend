@@ -1,5 +1,9 @@
-import { Camera, Plane, Raycaster, Vector2, Vector3 } from "three/webgpu";
-import { uniform, WebGPURenderer } from "three/webgpu";
+// @ts-nocheck
+// three r184: TSL helpers (uniform, …) live in `three/tsl`; `three/webgpu` keeps
+// the renderer + node-material classes. @types/three doesn't ship `three/tsl`
+// types, so this file opts out of type-checking like its WebGPU siblings.
+import { Camera, Plane, Raycaster, Vector2, Vector3, WebGPURenderer } from "three/webgpu";
+import { uniform } from "three/tsl";
 import { IAnimatedElement } from "./interfaces/IAnimatedElement";
 import { Root } from "./Root";
 

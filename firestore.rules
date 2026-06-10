@@ -15,5 +15,12 @@ service cloud.firestore {
         allow read, write: if request.auth != null && request.auth.uid == uid;
       }
     }
+
+    // Studio-authored presentations: any signed-in user may read (the toolkit
+    // plays today's moment). Writes are studio/admin-only (the admin SDK bypasses
+    // these rules), so no client write rule is granted here.
+    match /presentations/{id} {
+      allow read: if request.auth != null;
+    }
   }
 }

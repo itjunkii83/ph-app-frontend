@@ -1,60 +1,85 @@
-# CLAUDE.md
+# CLAUDE.md — monorepo root
 
-This file provides guidance to Claude Code (claude.ai/code) when working with code in this repository.
+This is a pnpm workspace holding two Next.js 16 apps and one shared package. For
+app-specific guidance, read the CLAUDE.md inside each app.
+
+> **Read the docs before any work — this is required, not optional.** The `docs/`
+> folders capture architecture, decisions, invariants, and gotchas that are not
+> obvious from the source (the media model, the player engine, the `/play` flow).
+> Read and digest the relevant ones before changing code or planning a change:
+> - [docs/ARCHITECTURE.md](./docs/ARCHITECTURE.md) — monorepo, the Presentation-JSON boundary, dev workflow, Firebase.
+> - [docs/MEDIA.md](./docs/MEDIA.md) — relative-key media model, Storage rules, Cache-Control, CORS.
+> - [packages/player/docs/PLAYBACK.md](./packages/player/docs/PLAYBACK.md) — the playback engine, effects, responsive sizing, the orchestrator.
+> - [apps/toolkit/docs/MOMENT.md](./apps/toolkit/docs/MOMENT.md) — how the toolkit plays a presentation on `/play`.
+> - [apps/studio/docs/MEDIA_AUTHORING.md](./apps/studio/docs/MEDIA_AUTHORING.md) + [EFFECT_SYSTEM.md](./apps/studio/docs/EFFECT_SYSTEM.md) — authoring, uploads, building effects.
+> - [docs/CODEPEN.md](./docs/CODEPEN.md) — `tools/codepen`, the extractor where every effect starts as a downloaded CodePen.
+>
+> When you touch an area, update its doc in the same change.
+
+When a task is complicated always create a to do list.
+
+## Layout
+
+```
+apps/toolkit    Pause Harbor — the user-facing daily ritual (the "harbor",
+                onboarding, the step runner, the /play moment). package: wisdom-toolkit
+apps/studio     The presentation engine — sandbox template editor, /admin,
+                firebase-admin API routes. package: wisdom
+packages/player @harbor/player — the shared, Next-agnostic playback engine
+                (renderer + effects + hooks). Both apps import it.
+```
 
 ## Commands
 
-Use pnpm only, never npm.
+Use **pnpm only**, never npm. From the repo root:
 
-- `pnpm dev` - dev server (Next.js App Router, Turbopack)
-- `pnpm build` - production build (also runs TypeScript checking)
-- `pnpm lint` - ESLint
-- `pnpm exec tsc --noEmit` - typecheck only
+```bash
+pnpm install                          # one root lockfile for the whole workspace
+pnpm --filter wisdom-toolkit dev      # run the toolkit
+pnpm --filter wisdom dev              # run the studio
+pnpm --filter wisdom-toolkit build    # build one app (runs its tsc + eslint)
+pnpm --filter @harbor/player typecheck
+pnpm build                            # build both apps (root script)
+```
 
-There is no test framework configured.
+There is no test framework.
 
-## IMPORTANT
+## IMPORTANT — testing
 
-The user likes to test, you should never be running nextjs servers or running pnpm dev or trying to access browsers. You do the work, then pass to me (the user) with clear instructions on how to test & validate the work. I will then report back findings.
+The user tests. Never run `pnpm dev` / Next servers or drive a browser yourself.
+Do the work, build/typecheck to verify, then hand off with clear test steps.
 
-## What this is
+The user commits their own code — do not run `git commit`/`git push`.
 
-Pause Harbor prototype: a config-driven daily habit ritual ("Daily Harbor") with a Duolingo-style two-screen UX. The product spec lives in `tmp/BUILD-BRIEF.md` (v2, the two-screen brief); `tmp/preview__1.html` is a UX-bones-only reference (never copy its visual style). The AI assembly step is deliberately faked: `data/dashboard-config.json` is hand-authored as if a model produced it, and the app renders it. No backend; all state is in localStorage.
+## The boundary: Presentation JSON
 
-Two views, one config:
-- **Harbor** (`/`, `components/harbor/harbor.tsx`): the lobby. Stats (streak + history dots, Knots, reps progress), lesson path preview, quests, today's rule, quote teaser, start/resume control. Owns Motivate and Reinforce.
-- **The Practice** (`/practice`, `components/runner/runner.tsx`): full-screen focused runner. One step at a time, top progress bar, reward beats (toast + noir confetti), completion screen. Owns Act. Never put stats/quests/history inside the runner; the brief is explicit about not blurring this line.
+A presentation is pure serializable JSON (sections -> slides -> layers, each layer
+referencing an effect by string id + a config blob). It is the only contract
+between authoring and playback:
 
-## Architecture
+- **Studio** authors presentations and writes them to the Firestore `presentations`
+  collection via firebase-admin API routes. Referenced media (images, audio) lives
+  in **Firebase Storage** as absolute tokenized download URLs (see `app/api/media`).
+- **Toolkit** reads a presentation with the client SDK (`lib/presentations.ts`) and
+  renders it with `@harbor/player` on the chromeless `/play` route.
 
-**Config drives everything.** `data/dashboard-config.json` → typed via cast in `lib/config.ts`. Pages pass `uiConfig` (NOT `config`) to the client components: it blanks `profile.freeText` so it never reaches the serialized client payload. The ordered `modules[]` array doubles as the lesson path; `lib/session.ts` splits it into steps (session order) and reps (point-earning steps, everything except motivation). The `Module` type in `lib/types.ts` is a discriminated union on `type` (`motivation | list | timed | structured | text | tracker | journal`); `ModuleOf<"list">` extracts one member. Adding a module type means: extend the union, add a step component in `components/steps/`, add a case to `components/runner/step-renderer.tsx`.
+Both apps target the same Firebase project (`humanos-8eeb8`). Storage was enabled
+on it; the default bucket is `humanos-8eeb8.firebasestorage.app`. Security rules
+live at the root (`firestore.rules`, `storage.rules`, wired by `firebase.json`);
+deploy with `firebase deploy`.
 
-**Session flow** (`lib/constants.ts` holds the knobs):
-- `MOMENT_AS_STEP_ZERO` (default true): motivation opens the session as step zero. Flipped false, it renders as a play card on Harbor (`components/harbor/moment-card.tsx`) and the session starts at the first action module.
-- `CURRENCY_NAME` (default "Knots") is the session currency label; `REP_POINTS`/`TRACKER_POINTS` the per-step rewards. The tracker is always the final step; finishing it is what extends the streak.
-- The runner footer is debug navigation: Back and Next, always enabled, never gated on exercise completion (this is a prototype for feeling out the flow, not a validated funnel). Back from step zero exits to Harbor. Keyboard: Enter/ArrowRight advance, ArrowLeft goes back, Escape exits. Steps with their own lifecycle (the timed countdown's Begin/Done, the tracker's check) keep those controls inside the step content, under the interaction.
-- Resume: the runner waits for session hydration, then mounts at the first incomplete step; Back/Next allow free movement from there. Points are awarded once per module per day; the reward beat (toast + confetti) only fires when points are actually earned, so re-walking completed steps navigates silently.
+## Conventions / gotchas
 
-**Persistence model** (`lib/`):
-- `use-local-storage.ts` - SSR/hydration-safe base hook: first render uses the initial value, the saved value is read in an effect after mount, writes are gated on a `hydrated` flag. Keep this pattern; reading localStorage during render causes hydration mismatches.
-- `use-module-state.ts` - exercise state, keyed `harbor:v1:<YYYY-MM-DD>:<moduleId>`. New-day reset is implicit: the date changes, the key changes, old keys are orphaned (no cleanup by design). The completed-today set (`lib/use-session.ts`) rides the same mechanism under the pseudo module id `session`.
-- `use-points.ts` - currency total at `harbor:v1:points` (`{ total, byDay }`). Not date-scoped; survives the new day.
-- `use-tracker.ts` + `streak.ts` - tracker state is NOT date-scoped (`harbor:v1:tracker:<moduleId>`) so streak/history survive the daily reset. Streak walks back from today (or yesterday if today is unchecked) over a completions map; a missing day breaks the run. Yesterday's streak stays visible the morning after until a real gap exists - this is intentional.
-- Date keys are local time (`lib/date.ts`), not UTC: a "day" is the user's day.
-- Several components instantiate the same storage key through separate hook instances (for example the completion screen re-reads points/tracker). This works because each instance reads at mount and the flows are sequential; there is no cross-instance sync, so do not have two simultaneously mounted writers on one key.
-
-**Design system (Pause Harbor noir).** All tokens are CSS variables in `app/globals.css` (ink/panel/line/paper/muted/pewter/silver + `--accent-gradient`), mapped to Tailwind v4 utilities via `@theme inline` (e.g. `bg-panel`, `text-paper`, `border-line`, `font-display`). The standard shadcn semantic variables (`--primary`, `--muted-foreground`, etc.) are also mapped onto the noir palette so stock shadcn components inherit the look. Tailwind v4: no tailwind.config; theme lives in CSS. The `dark` and `data-checked` custom variants are defined in globals.css and required by the shadcn components; `<html>` carries a permanent `dark` class.
-
-- Fonts: Fraunces (`font-display`, titles + quote) and Archivo (`font-body`, everything else) via next/font in `app/layout.tsx`.
-- Cards use `components/ui/harbor-card.tsx` (panel bg, line border, 16px radius, optional 3px accent top bar), not the stock shadcn Card.
-- The grain overlay (`components/grain-overlay.tsx`) is a fixed fractalNoise SVG at 5.5% opacity over everything.
-- Mobile-first: the runner is always a single centered `max-w-md` column; Harbor widens to a two-column grid on `lg`.
-- Reward effects stay filmic and restrained: silver/paper confetti (`components/runner/confetti-burst.tsx`), accent-gradient progress and streak fills. No rainbow, no warm trophy gold.
-
-## House rules (product copy)
-
-From the founding brief; these apply to all UI copy:
-
-- No em dashes anywhere in UI copy. Use periods, commas, colons, and parentheses.
-- Never render a book title or author name as a feature, label, or heading. The single attributed quote in the motivation module is the only named attribution allowed.
-- Never render `profile.freeText` raw; `goalText` may be shown subtly.
+- **`@harbor/player` is Next-agnostic** — no `next/*` and no firebase imports.
+  Both apps compile it from source via `transpilePackages` (no build step). Its
+  contract and rules are in `packages/player/README.md`.
+- **The toolkit sets `reactStrictMode: false`** (matching the studio): StrictMode's
+  dev double-invoke breaks the GSAP/SplitText effect timelines. The player is
+  otherwise StrictMode-safe.
+- Each app keeps **its own tsconfig and eslint config** (the toolkit is `strict`,
+  the studio is not, and they have different design systems). A shared
+  tsconfig/eslint base was intentionally not introduced — the per-app configs work
+  and a shared base buys little for two apps.
+- React/react-dom/next are unified across the apps; the player declares `react` as
+  a peer dependency only.
+```

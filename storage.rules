@@ -1,0 +1,22 @@
+rules_version = '2';
+
+// Presentation media. ONLY presentations/media/** is publicly readable (tokenless)
+// so browser <img>/<audio> GETs — which carry no Firebase auth — load on
+// shareable/exported presentations without a login. Everything else under
+// presentations/ stays auth-gated, and the rest of the bucket is default-deny.
+// Keep nothing sensitive under presentations/media/**.
+//
+// Writes are studio/admin-only (the admin SDK bypasses these rules), so no client
+// write rule is granted.
+//
+// Deploy: `firebase deploy --only storage` (firebase.json + .firebaserc wire it).
+service firebase.storage {
+  match /b/{bucket}/o {
+    match /presentations/media/{allPaths=**} {
+      allow read: if true;
+    }
+    match /presentations/{allPaths=**} {
+      allow read: if request.auth != null;
+    }
+  }
+}

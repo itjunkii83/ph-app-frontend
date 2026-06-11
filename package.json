@@ -8,8 +8,10 @@
     "lint": "pnpm --filter wisdom-toolkit --filter wisdom lint",
     "dev:toolkit": "pnpm --filter wisdom-toolkit dev",
     "dev:studio": "pnpm --filter wisdom dev",
+    "dev:studio2": "pnpm --filter studio-v2 dev",
     "build:toolkit": "pnpm --filter wisdom-toolkit build",
-    "build:studio": "pnpm --filter wisdom build"
+    "build:studio": "pnpm --filter wisdom build",
+    "build:studio2": "pnpm --filter studio-v2 build"
   },
   "devDependencies": {
     "nodemon": "^3.1.14"

@@ -1,16 +1,18 @@
-// The data model. These types map one to one onto the JSON the real
-// assembly model will emit, so they port straight into the Next app.
+// The data model. Atoms reference real @harbor/player effects by id plus a typed
+// config blob (validated against the effect's configSchema), and carry the studio
+// curation tags the generator reads. This is the durable pantry artifact.
 
-export type Anim = 'rise' | 'cut' | 'build' | 'bloom' | 'pulse';
 export type Pacing = 'slow' | 'medium' | 'fast';
 export type Position = 'center' | 'upper' | 'lower';
 
-/** Atom: a visual ingredient. Self describing so the AI knows when to use it. */
+/** Atom: a visual backdrop. References a background-category effect + config. */
 export interface Background {
   id: string;
   name: string;
   role: string;
-  bg: string; // css background value (gradient stands in for real media)
+  // A background-category effect id: 'gradient-background' | 'background-image' | 'ocean'.
+  effectType: string;
+  config: Record<string, unknown>;
   mood: string[];
   metaphor: string;
   motion: string[];
@@ -18,11 +20,13 @@ export interface Background {
   contrast: string;
 }
 
-/** Atom: a text effect. How a line arrives and behaves. */
+/** Atom: a text effect. References a text-category effect + config. */
 export interface TextEffect {
   id: string;
   name: string;
-  anim: Anim;
+  // A text-category effect id: 'masked-text-reveal' | 'dreamy-smoke' | 'hard-cut' | 'pulse' | 'bloom' | 'basic-text'.
+  effectType: string;
+  config: Record<string, unknown>;
   register: string[];
   pacing: Pacing;
   bestFor: string[];
@@ -36,8 +40,8 @@ export interface Pairing {
   fxId: string;
   text: string; // sample line only; the AI supplies the real quote
   attr: string;
-  font: string;
-  cap: number;
+  font: string; // a real font family name (e.g. "Fraunces"), not a CSS var
+  cap: number; // the MAX font size; fit-to-box shrinks long lines below it
   color: string;
   pos: Position;
   mood: string[];
@@ -92,13 +96,6 @@ export type View = 'backgrounds' | 'effects' | 'pairings' | 'designer' | 'rules'
 
 export const COLOR_SWATCHES = ['#eef3f7', '#cfd8df', '#9aa5af', '#7f8a94', '#b8935a'];
 export const FONT_OPTIONS = [
-  { label: 'Fraunces', value: "var(--font-fraunces), Georgia, serif" },
-  { label: 'Archivo', value: "var(--font-archivo), system-ui, sans-serif" },
-];
-export const ANIM_OPTIONS: { value: Anim; label: string }[] = [
-  { value: 'rise', label: 'Reveal rise' },
-  { value: 'cut', label: 'Hard cut' },
-  { value: 'build', label: 'Word build' },
-  { value: 'bloom', label: 'Slow bloom' },
-  { value: 'pulse', label: 'Pulse' },
+  { label: 'Fraunces', value: 'Fraunces' },
+  { label: 'Archivo', value: 'Archivo' },
 ];

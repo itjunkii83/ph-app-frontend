@@ -4,6 +4,7 @@ out/
 build/
 .DS_Store
 *.pem
+service-account.json
 npm-debug.log*
 .env*.local
 next-env.d.ts

@@ -1,9 +1,15 @@
 import { registerEffect } from "./components/effects/registry";
-import { backgroundImageDefinition } from "./components/effects/backgrounds";
+import {
+  backgroundImageDefinition,
+  gradientBackgroundDefinition,
+} from "./components/effects/backgrounds";
 import {
   basicTextDefinition,
   dreamySmokeDefinition,
   maskedTextRevealDefinition,
+  hardCutDefinition,
+  pulseDefinition,
+  bloomDefinition,
 } from "./components/effects/text";
 import { cloudyBackgroundDefinition } from "./components/effects/ambient";
 import { kenBurnsImageDefinition } from "./components/effects/image";
@@ -20,10 +26,14 @@ export function registerEffects(): void {
   if (registered) return;
   registered = true;
   registerEffect(backgroundImageDefinition);
+  registerEffect(gradientBackgroundDefinition);
   registerEffect(basicTextDefinition);
   registerEffect(dreamySmokeDefinition);
   registerEffect(cloudyBackgroundDefinition);
   registerEffect(kenBurnsImageDefinition);
   registerEffect(maskedTextRevealDefinition);
+  registerEffect(hardCutDefinition);
+  registerEffect(pulseDefinition);
+  registerEffect(bloomDefinition);
   registerEffect(oceanDefinition);
 }

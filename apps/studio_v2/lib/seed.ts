@@ -1,7 +1,8 @@
 import type { Pantry } from './types';
 
-const SERIF = 'var(--font-fraunces), Georgia, serif';
-const SANS = 'var(--font-archivo), system-ui, sans-serif';
+// Real font family names (loaded by the player via useFonts / Google), not CSS vars.
+const SERIF = 'Fraunces';
+const SANS = 'Archivo';
 
 export const SEED_PANTRY: Pantry = {
   backgrounds: [
@@ -9,7 +10,8 @@ export const SEED_PANTRY: Pantry = {
       id: 'storm-water',
       name: 'Storm water',
       role: 'Opener',
-      bg: 'radial-gradient(900px 540px at 56% 34%,rgba(150,172,196,.34),transparent 64%),linear-gradient(180deg,#1b232c 0%,#0e141a 60%,#0a0e13 100%)',
+      effectType: 'gradient-background',
+      config: { background: 'radial-gradient(900px 540px at 56% 34%,rgba(150,172,196,.34),transparent 64%),linear-gradient(180deg,#1b232c 0%,#0e141a 60%,#0a0e13 100%)' },
       mood: ['resolve', 'calm'],
       metaphor: 'A still surface over real depth.',
       motion: ['slow push in', 'drift'],
@@ -20,7 +22,8 @@ export const SEED_PANTRY: Pantry = {
       id: 'first-light',
       name: 'First light',
       role: 'Closer',
-      bg: 'radial-gradient(880px 560px at 68% 80%,rgba(228,176,120,.40),transparent 66%),linear-gradient(180deg,#191310 0%,#241a14 70%,#15100d 100%)',
+      effectType: 'gradient-background',
+      config: { background: 'radial-gradient(880px 560px at 68% 80%,rgba(228,176,120,.40),transparent 66%),linear-gradient(180deg,#191310 0%,#241a14 70%,#15100d 100%)' },
       mood: ['hope', 'breakthrough'],
       metaphor: 'First light coming up off the water.',
       motion: ['pan up', 'slow push in'],
@@ -31,7 +34,8 @@ export const SEED_PANTRY: Pantry = {
       id: 'deep-current',
       name: 'Deep current',
       role: 'The turn',
-      bg: 'radial-gradient(920px 620px at 42% 28%,rgba(96,138,190,.38),transparent 64%),linear-gradient(180deg,#0d1822 0%,#0a121c 55%,#070d15 100%)',
+      effectType: 'gradient-background',
+      config: { background: 'radial-gradient(920px 620px at 42% 28%,rgba(96,138,190,.38),transparent 64%),linear-gradient(180deg,#0d1822 0%,#0a121c 55%,#070d15 100%)' },
       mood: ['introspection', 'struggle'],
       metaphor: 'The weight underneath the calm.',
       motion: ['drift'],
@@ -42,7 +46,8 @@ export const SEED_PANTRY: Pantry = {
       id: 'ember',
       name: 'Ember',
       role: 'Climax',
-      bg: 'radial-gradient(760px 520px at 50% 92%,rgba(228,116,72,.46),transparent 64%),linear-gradient(180deg,#1a1310 0%,#241410 65%,#120b09 100%)',
+      effectType: 'gradient-background',
+      config: { background: 'radial-gradient(760px 520px at 50% 92%,rgba(228,116,72,.46),transparent 64%),linear-gradient(180deg,#1a1310 0%,#241410 65%,#120b09 100%)' },
       mood: ['intensity', 'drive'],
       metaphor: 'A banked fire about to catch.',
       motion: ['slow push in'],
@@ -53,20 +58,47 @@ export const SEED_PANTRY: Pantry = {
       id: 'horizon',
       name: 'Horizon',
       role: 'Opener or closer',
-      bg: 'linear-gradient(180deg,#141c24 0%,#222c36 50%,#0f161d 100%),radial-gradient(1100px 480px at 50% 50%,rgba(180,196,212,.30),transparent 62%)',
+      effectType: 'gradient-background',
+      config: { background: 'linear-gradient(180deg,#141c24 0%,#222c36 50%,#0f161d 100%),radial-gradient(1100px 480px at 50% 50%,rgba(180,196,212,.30),transparent 62%)' },
       mood: ['clarity', 'purpose'],
       metaphor: 'An open line where the sky meets the water.',
       motion: ['pan right', 'push in'],
       zones: 'Center band is clean.',
       contrast: 'low',
     },
+    {
+      id: 'open-ocean',
+      name: 'Open ocean',
+      role: 'Opener',
+      effectType: 'ocean',
+      config: { elevation: 2, azimuth: 140.2, exposure: 0.0781, distortionScale: 1.3, size: 1, bloomStrength: 0.16, bloomRadius: 1, cloudCoverage: 0, cloudDensity: 0, cloudElevation: 1 },
+      mood: ['calm', 'clarity', 'vast'],
+      metaphor: 'Real water moving to the horizon.',
+      motion: ['drift'],
+      zones: 'Center holds type; the horizon is bright.',
+      contrast: 'medium',
+    },
+    {
+      id: 'drifting-cloud',
+      name: 'Drifting cloud',
+      role: 'The turn',
+      effectType: 'cloudy-background',
+      config: { cloudColor: '#9aa5af', speed: 'slow', opacity: 0.35, layers: 3 },
+      mood: ['soft', 'dream', 'calm'],
+      metaphor: 'Slow weather passing through.',
+      motion: ['drift'],
+      zones: 'Center stays readable.',
+      contrast: 'low',
+    },
   ],
   textEffects: [
-    { id: 'reveal-rise', name: 'Reveal rise', anim: 'rise', register: ['tender', 'reflective'], pacing: 'slow', bestFor: ['opening', 'resolution'], needs: 'A high-contrast zone with room to breathe.' },
-    { id: 'hard-cut', name: 'Hard cut', anim: 'cut', register: ['punchy', 'urgent'], pacing: 'fast', bestFor: ['climax'], needs: 'Strong contrast behind a single line.' },
-    { id: 'word-build', name: 'Word build', anim: 'build', register: ['building', 'deliberate'], pacing: 'medium', bestFor: ['the turn'], needs: 'Short lines of three to six words.' },
-    { id: 'slow-bloom', name: 'Slow bloom', anim: 'bloom', register: ['meditative', 'calm'], pacing: 'slow', bestFor: ['opening'], needs: 'Space and a quiet background.' },
-    { id: 'pulse', name: 'Pulse', anim: 'pulse', register: ['intense'], pacing: 'medium', bestFor: ['climax'], needs: 'One strong line, nothing competing.' },
+    { id: 'reveal-rise', name: 'Reveal rise', effectType: 'masked-text-reveal', config: { splitMode: 'lines', speed: 'slow' }, register: ['tender', 'reflective'], pacing: 'slow', bestFor: ['opening', 'resolution'], needs: 'A high-contrast zone with room to breathe.' },
+    { id: 'hard-cut', name: 'Hard cut', effectType: 'hard-cut', config: { speed: 'fast' }, register: ['punchy', 'urgent'], pacing: 'fast', bestFor: ['climax'], needs: 'Strong contrast behind a single line.' },
+    { id: 'word-build', name: 'Word build', effectType: 'masked-text-reveal', config: { splitMode: 'words', speed: 'medium' }, register: ['building', 'deliberate'], pacing: 'medium', bestFor: ['the turn'], needs: 'Short lines of three to six words.' },
+    { id: 'slow-bloom', name: 'Slow bloom', effectType: 'bloom', config: { speed: 'slow' }, register: ['meditative', 'calm'], pacing: 'slow', bestFor: ['opening'], needs: 'Space and a quiet background.' },
+    { id: 'pulse', name: 'Pulse', effectType: 'pulse', config: { speed: 'medium' }, register: ['intense'], pacing: 'medium', bestFor: ['climax'], needs: 'One strong line, nothing competing.' },
+    { id: 'dreamy-smoke', name: 'Dreamy smoke', effectType: 'dreamy-smoke', config: { speed: 'slow' }, register: ['dreamy', 'atmospheric', 'soft'], pacing: 'slow', bestFor: ['opening', 'resolution'], needs: 'A quiet backdrop; the line drifts in then smokes away.' },
+    { id: 'plain-line', name: 'Plain line', effectType: 'basic-text', config: {}, register: ['plain', 'quiet'], pacing: 'medium', bestFor: ['the turn'], needs: 'When the line should simply sit, no motion.' },
   ],
   pairings: [
     { id: 'p1', bgId: 'storm-water', fxId: 'reveal-rise', text: 'Be one.', attr: '', font: SERIF, cap: 64, color: '#eef3f7', pos: 'center', mood: ['resolve', 'calm'], best: ['opening'] },
@@ -76,6 +108,8 @@ export const SEED_PANTRY: Pantry = {
     { id: 'p5', bgId: 'ember', fxId: 'pulse', text: 'This is the rep.', attr: '', font: SERIF, cap: 62, color: '#eef3f7', pos: 'center', mood: ['intensity'], best: ['climax'] },
     { id: 'p6', bgId: 'first-light', fxId: 'reveal-rise', text: 'Carry it into the day.', attr: '', font: SERIF, cap: 58, color: '#eef3f7', pos: 'upper', mood: ['hope', 'breakthrough'], best: ['resolution'] },
     { id: 'p7', bgId: 'horizon', fxId: 'reveal-rise', text: 'Then you set out.', attr: '', font: SERIF, cap: 64, color: '#eef3f7', pos: 'center', mood: ['clarity', 'purpose'], best: ['resolution'] },
+    { id: 'p8', bgId: 'deep-current', fxId: 'dreamy-smoke', text: 'Let it settle.', attr: '', font: SERIF, cap: 66, color: '#eef3f7', pos: 'center', mood: ['introspection', 'calm'], best: ['opening', 'the turn'] },
+    { id: 'p9', bgId: 'open-ocean', fxId: 'reveal-rise', text: 'Set your line.', attr: '', font: SERIF, cap: 60, color: '#eef3f7', pos: 'center', mood: ['clarity', 'calm'], best: ['opening'] },
   ],
   rules: [
     'Arrive calm. Leave charged.',

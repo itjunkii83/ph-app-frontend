@@ -7,7 +7,9 @@ import { SPEED_MULTIPLIERS, SpeedOption } from '../../../lib/effects/speed';
 import { useFonts } from '../../../hooks/useFonts';
 import { useKenBurns } from '../../../hooks/useKenBurns';
 import { kenBurnsConfigField, KenBurnsDirection } from '../../../lib/effects/kenBurnsConfig';
-import { cqFontSize, useBaseCanvas } from '../../../lib/responsive';
+import { useBaseCanvas } from '../../../lib/responsive';
+import { useFitToBox } from '../../../hooks/useFitToBox';
+import { Attribution } from './Attribution';
 import gsap from 'gsap';
 import { SplitText } from 'gsap/SplitText';
 
@@ -82,6 +84,25 @@ const configSchema: ConfigSchema = {
       { label: 'Right', value: 'right' },
     ],
   },
+  // When on, Font Size is treated as a maximum and a long line shrinks to fit.
+  fitToBox: {
+    type: 'boolean',
+    label: 'Fit to box',
+    default: false,
+  },
+  minFontSize: {
+    type: 'number',
+    label: 'Min Font Size',
+    default: 16,
+    min: 8,
+    max: 120,
+    step: 1,
+  },
+  attribution: {
+    type: 'string',
+    label: 'Attribution',
+    default: '',
+  },
   ...kenBurnsConfigField,
 };
 
@@ -96,18 +117,35 @@ export function MaskedTextReveal({ config, isActive, onComplete, durationMs }: E
   const textAlign = (config.textAlign || 'center') as 'left' | 'center' | 'right';
   const kenBurns = (config.kenBurns || 'none') as KenBurnsDirection;
   const holdDuration = config.duration ?? 0;
+  const fitToBox = config.fitToBox ?? false;
+  const minFontSize = config.minFontSize ?? 16;
+  const attribution = config.attribution || '';
 
   useFonts([fontFamily]);
 
   const effectiveDurationMs = holdDuration > 0 ? holdDuration * 1000 : durationMs;
   const multiplier = SPEED_MULTIPLIERS[speed] ?? 1;
   const { zoomRef } = useKenBurns({ direction: kenBurns, durationMs: effectiveDurationMs, speedMultiplier: multiplier });
-  const textRef = useRef<HTMLDivElement>(null);
+  // The hook owns the text element ref and drives font-size imperatively, so the
+  // fit settles before SplitText captures line breaks. fontSize is not in style.
+  const { textRef, fit } = useFitToBox({
+    enabled: fitToBox,
+    text,
+    maxFontSize: fontSize,
+    minFontSize,
+    base,
+    frozen: isActive,
+    deps: [fontFamily],
+  });
   const splitRef = useRef<SplitText | null>(null);
 
   const buildEnter = useCallback((el: HTMLElement) => {
     const textEl = textRef.current;
     if (!textEl) return gsap.to({}, { duration: 0 });
+
+    // Settle the fit-to-box size BEFORE splitting so line breaks are captured at
+    // the final font size (a later re-fit would invalidate the split geometry).
+    fit();
 
     // Clean up previous split
     if (splitRef.current) {
@@ -148,7 +186,8 @@ export function MaskedTextReveal({ config, isActive, onComplete, durationMs }: E
     );
 
     return tl;
-  }, [splitMode, multiplier]);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [splitMode, multiplier, fit]);
 
   const buildExit = useCallback((el: HTMLElement) => {
     if (!splitRef.current) {
@@ -214,6 +253,7 @@ export function MaskedTextReveal({ config, isActive, onComplete, durationMs }: E
           width: '100%',
           height: '100%',
           display: 'flex',
+          flexDirection: 'column',
           alignItems: 'center',
           justifyContent: 'center',
           overflow: 'hidden',
@@ -224,7 +264,6 @@ export function MaskedTextReveal({ config, isActive, onComplete, durationMs }: E
           ref={textRef}
           style={{
             fontFamily,
-            fontSize: cqFontSize(fontSize, base),
             color,
             textAlign,
             lineHeight: 1.4,
@@ -235,6 +274,7 @@ export function MaskedTextReveal({ config, isActive, onComplete, durationMs }: E
         >
           {text}
         </div>
+        <Attribution text={attribution} color={color} />
       </div>
     </div>
   );

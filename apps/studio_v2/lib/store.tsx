@@ -3,19 +3,17 @@
 import { createContext, useCallback, useContext, useEffect, useMemo, useRef, useState } from 'react';
 import type { Background, Pairing, Pantry, Taste, TextEffect, Theme } from './types';
 import { SEED_PANTRY, SEED_TASTE } from './seed';
+import { loadStudio, saveStudio } from './studioStore';
 
-const STORE_KEY = 'ph-studio-v2';
 const THEME_KEY = 'ph-studio-v2-theme';
-
-interface PersistShape {
-  pantry: Pantry;
-  taste: Taste;
-}
 
 interface StudioCtx {
   pantry: Pantry;
   taste: Taste;
   theme: Theme;
+  // True until the pantry doc has loaded, so the UI never flashes seed over real
+  // data. Firestore hydration is async.
+  loading: boolean;
   bgById: (id: string) => Background | undefined;
   fxById: (id: string) => TextEffect | undefined;
   upsertBackground: (bg: Background) => void;
@@ -46,34 +44,47 @@ export function StudioProvider({ children }: { children: React.ReactNode }) {
   const [pantry, setPantry] = useState<Pantry>(SEED_PANTRY);
   const [taste, setTasteState] = useState<Taste>(SEED_TASTE);
   const [theme, setTheme] = useState<Theme>('dark');
+  const [loading, setLoading] = useState(true);
   const hydrated = useRef(false);
+  // Set when hydration applies remote data, so the resulting state change does
+  // not immediately echo back to the server as a redundant write.
+  const skipPersist = useRef(false);
 
-  // hydrate
+  // Hydrate the pantry from Firestore (async). Theme stays in localStorage
+  // (chrome-only). The UI shows a loading state until this resolves.
   useEffect(() => {
+    let cancelled = false;
     try {
-      const raw = localStorage.getItem(STORE_KEY);
-      if (raw) {
-        const parsed = JSON.parse(raw) as PersistShape;
-        if (parsed.pantry) setPantry(parsed.pantry);
-        if (parsed.taste) setTasteState(parsed.taste);
-      }
       const t = (localStorage.getItem(THEME_KEY) as Theme) || 'dark';
       setTheme(t);
       document.documentElement.dataset.theme = t;
     } catch {
       /* ignore */
     }
-    hydrated.current = true;
+    (async () => {
+      const data = await loadStudio();
+      if (cancelled) return;
+      if (data) {
+        skipPersist.current = true;
+        if (data.pantry) setPantry(data.pantry);
+        if (data.taste) setTasteState(data.taste);
+      }
+      setLoading(false);
+      hydrated.current = true;
+    })();
+    return () => { cancelled = true; };
   }, []);
 
-  // persist
+  // Persist to Firestore behind a debounce, writes optimistic. Skips the echo
+  // right after hydration.
   useEffect(() => {
     if (!hydrated.current) return;
-    try {
-      localStorage.setItem(STORE_KEY, JSON.stringify({ pantry, taste }));
-    } catch {
-      /* ignore */
+    if (skipPersist.current) {
+      skipPersist.current = false;
+      return;
     }
+    const handle = setTimeout(() => { void saveStudio(pantry, taste); }, 700);
+    return () => clearTimeout(handle);
   }, [pantry, taste]);
 
   const bgById = useCallback((id: string) => pantry.backgrounds.find((b) => b.id === id), [pantry.backgrounds]);
@@ -111,10 +122,10 @@ export function StudioProvider({ children }: { children: React.ReactNode }) {
   }, []);
 
   const value = useMemo<StudioCtx>(() => ({
-    pantry, taste, theme, bgById, fxById,
+    pantry, taste, theme, loading, bgById, fxById,
     upsertBackground, deleteBackground, upsertEffect, deleteEffect,
     upsertPairing, deletePairing, setRule, addRule, deleteRule, setTaste, toggleTheme, resetAll,
-  }), [pantry, taste, theme, bgById, fxById, upsertBackground, deleteBackground, upsertEffect, deleteEffect, upsertPairing, deletePairing, setRule, addRule, deleteRule, setTaste, toggleTheme, resetAll]);
+  }), [pantry, taste, theme, loading, bgById, fxById, upsertBackground, deleteBackground, upsertEffect, deleteEffect, upsertPairing, deletePairing, setRule, addRule, deleteRule, setTaste, toggleTheme, resetAll]);
 
   return <Ctx.Provider value={value}>{children}</Ctx.Provider>;
 }

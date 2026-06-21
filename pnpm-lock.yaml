@@ -141,9 +141,18 @@ importers:
 
   apps/studio_v2:
     dependencies:
+      '@harbor/player':
+        specifier: workspace:*
+        version: link:../../packages/player
       clsx:
         specifier: ^2.1.1
         version: 2.1.1
+      firebase:
+        specifier: ^12.14.0
+        version: 12.14.0
+      firebase-admin:
+        specifier: ^13.6.1
+        version: 13.10.0
       lucide-react:
         specifier: ^0.563.0
         version: 0.563.0(react@19.2.7)

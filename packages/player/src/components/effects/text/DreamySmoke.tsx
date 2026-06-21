@@ -7,7 +7,9 @@ import { SPEED_MULTIPLIERS, SpeedOption } from '../../../lib/effects/speed';
 import { useFonts } from '../../../hooks/useFonts';
 import { useKenBurns } from '../../../hooks/useKenBurns';
 import { kenBurnsConfigField, KenBurnsDirection } from '../../../lib/effects/kenBurnsConfig';
-import { cqFontSize, useBaseCanvas } from '../../../lib/responsive';
+import { useBaseCanvas } from '../../../lib/responsive';
+import { useFitToBox } from '../../../hooks/useFitToBox';
+import { Attribution } from './Attribution';
 import gsap from 'gsap';
 import { SplitText } from 'gsap/SplitText';
 
@@ -95,6 +97,25 @@ const configSchema: ConfigSchema = {
       { label: 'Right', value: 'right' },
     ],
   },
+  // When on, Font Size is treated as a maximum and a long line shrinks to fit.
+  fitToBox: {
+    type: 'boolean',
+    label: 'Fit to box',
+    default: false,
+  },
+  minFontSize: {
+    type: 'number',
+    label: 'Min Font Size',
+    default: 16,
+    min: 8,
+    max: 120,
+    step: 1,
+  },
+  attribution: {
+    type: 'string',
+    label: 'Attribution',
+    default: '',
+  },
   ...kenBurnsConfigField,
 };
 
@@ -111,6 +132,9 @@ export function DreamySmoke({ config, isActive, onComplete, durationMs }: Effect
   const kenBurns = (config.kenBurns || 'none') as KenBurnsDirection;
 
   const holdDuration = config.duration ?? 0;
+  const fitToBox = config.fitToBox ?? false;
+  const minFontSize = config.minFontSize ?? 16;
+  const attribution = config.attribution || '';
 
   useFonts([fontFamily]);
 
@@ -119,7 +143,17 @@ export function DreamySmoke({ config, isActive, onComplete, durationMs }: Effect
 
   const multiplier = SPEED_MULTIPLIERS[speed] ?? 1;
   const { zoomRef } = useKenBurns({ direction: kenBurns, durationMs: effectiveDurationMs, speedMultiplier: multiplier });
-  const textRef = useRef<HTMLDivElement>(null);
+  // The hook owns the text element ref and drives font-size imperatively, so the
+  // fit settles before SplitText captures line breaks. fontSize is not in style.
+  const { textRef, fit } = useFitToBox({
+    enabled: fitToBox,
+    text,
+    maxFontSize: fontSize,
+    minFontSize,
+    base,
+    frozen: isActive,
+    deps: [fontFamily, fontWeight, fontStyle],
+  });
   const splitRef = useRef<SplitText | null>(null);
 
   const glowColor = hexToRgba(color, 0.5);
@@ -127,6 +161,9 @@ export function DreamySmoke({ config, isActive, onComplete, durationMs }: Effect
   const buildEnter = useCallback((el: HTMLElement) => {
     const textEl = textRef.current;
     if (!textEl) return gsap.to({}, { duration: 0 });
+
+    // Settle the fit-to-box size BEFORE splitting so the split sees the final size.
+    fit();
 
     // Split into chars upfront so the layout is settled before anything is visible.
     // This prevents the text reflow/shift that would happen if we split at exit time.
@@ -160,7 +197,8 @@ export function DreamySmoke({ config, isActive, onComplete, durationMs }: Effect
     );
 
     return tl;
-  }, [multiplier, glowColor]);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [multiplier, glowColor, fit]);
 
   const buildExit = useCallback((el: HTMLElement) => {
     const chars = splitRef.current?.chars;
@@ -229,6 +267,7 @@ export function DreamySmoke({ config, isActive, onComplete, durationMs }: Effect
           width: '100%',
           height: '100%',
           display: 'flex',
+          flexDirection: 'column',
           alignItems: 'center',
           justifyContent: 'center',
           ...(kenBurns !== 'none' ? { willChange: 'transform' } : {}),
@@ -238,7 +277,6 @@ export function DreamySmoke({ config, isActive, onComplete, durationMs }: Effect
           ref={textRef}
           style={{
             fontFamily,
-            fontSize: cqFontSize(fontSize, base),
             fontWeight,
             fontStyle,
             color,
@@ -251,6 +289,7 @@ export function DreamySmoke({ config, isActive, onComplete, durationMs }: Effect
         >
           {text}
         </div>
+        <Attribution text={attribution} color={color} />
       </div>
     </div>
   );

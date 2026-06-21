@@ -167,9 +167,12 @@ export function TagEditor({ tags, onChange }: { tags: string[]; onChange: (t: st
   );
 }
 
-export function Modal({ open, onClose, title, eyebrow, children, footer, wide }: {
+export function Modal({ open, onClose, title, eyebrow, children, footer, wide, tall }: {
   open: boolean; onClose: () => void; title: string; eyebrow?: string;
   children: React.ReactNode; footer?: React.ReactNode; wide?: boolean;
+  // `tall` gives the modal a fixed height and an unscrolled body, so the content
+  // can manage its own internal scroll regions (a fixed preview + scrolling knobs).
+  tall?: boolean;
 }) {
   if (!open) return null;
   return (
@@ -177,16 +180,16 @@ export function Modal({ open, onClose, title, eyebrow, children, footer, wide }:
       className="fixed inset-0 z-[60] flex items-center justify-center bg-[rgba(4,5,7,0.74)] p-7"
       onClick={(e) => { if (e.target === e.currentTarget) onClose(); }}
     >
-      <div className={cn('flex max-h-[92vh] w-full flex-col overflow-hidden rounded-2xl border border-line bg-ink2', wide ? 'max-w-[960px]' : 'max-w-[520px]')}>
-        <div className="flex items-start justify-between border-b border-line px-6 py-5">
+      <div className={cn('flex w-full flex-col overflow-hidden rounded-2xl border border-line bg-ink2', wide ? 'max-w-[960px]' : 'max-w-[520px]', tall ? 'h-[88vh]' : 'max-h-[92vh]')}>
+        <div className="flex flex-none items-start justify-between border-b border-line px-6 py-5">
           <div>
             {eyebrow ? <Eyebrow className="mb-1.5">{eyebrow}</Eyebrow> : null}
             <h2 className="font-display text-2xl font-normal text-paper">{title}</h2>
           </div>
           <X className="h-5 w-5 flex-none cursor-pointer text-muted hover:text-paper" onClick={onClose} />
         </div>
-        <div className="flex-1 overflow-y-auto px-6 py-5">{children}</div>
-        {footer ? <div className="border-t border-line px-6 py-4">{footer}</div> : null}
+        <div className={cn('flex-1 px-6 py-5', tall ? 'min-h-0 overflow-hidden' : 'overflow-y-auto')}>{children}</div>
+        {footer ? <div className="flex-none border-t border-line px-6 py-4">{footer}</div> : null}
       </div>
     </div>
   );

@@ -5,7 +5,9 @@ import { EffectProps, EffectDefinition, ConfigSchema } from '../../../types/effe
 import { useFonts } from '../../../hooks/useFonts';
 import { useKenBurns } from '../../../hooks/useKenBurns';
 import { kenBurnsConfigField, KenBurnsDirection } from '../../../lib/effects/kenBurnsConfig';
-import { cqFontSize, useBaseCanvas } from '../../../lib/responsive';
+import { useBaseCanvas } from '../../../lib/responsive';
+import { useFitToBox } from '../../../hooks/useFitToBox';
+import { Attribution } from './Attribution';
 
 const configSchema: ConfigSchema = {
   text: {
@@ -70,6 +72,25 @@ const configSchema: ConfigSchema = {
     max: 100,
     step: 5,
   },
+  // When on, Font Size is treated as a maximum and a long line shrinks to fit.
+  fitToBox: {
+    type: 'boolean',
+    label: 'Fit to box',
+    default: false,
+  },
+  minFontSize: {
+    type: 'number',
+    label: 'Min Font Size',
+    default: 16,
+    min: 8,
+    max: 120,
+    step: 1,
+  },
+  attribution: {
+    type: 'string',
+    label: 'Attribution',
+    default: '',
+  },
   ...kenBurnsConfigField,
 };
 
@@ -85,9 +106,24 @@ export function BasicText({ config, durationMs }: EffectProps) {
   const textAlign = (config.textAlign || 'center') as 'left' | 'center' | 'right';
   const lineHeight = config.lineHeight ?? 1.4;
   const maxWidth = config.maxWidth ?? 80;
+  const fitToBox = config.fitToBox ?? false;
+  const minFontSize = config.minFontSize ?? 16;
+  const attribution = config.attribution || '';
   const kenBurns = (config.kenBurns || 'none') as KenBurnsDirection;
 
   const { zoomRef } = useKenBurns({ direction: kenBurns, durationMs });
+
+  // The hook drives font-size imperatively (cqFontSize when off, a fitted px when
+  // on), so fontSize is not set in the style below.
+  const { textRef } = useFitToBox({
+    enabled: fitToBox,
+    text,
+    maxFontSize: fontSize,
+    minFontSize,
+    base,
+    widthRatio: maxWidth / 100,
+    deps: [fontFamily, fontWeight, lineHeight, maxWidth],
+  });
 
   return (
     <div
@@ -102,15 +138,16 @@ export function BasicText({ config, durationMs }: EffectProps) {
           width: '100%',
           height: '100%',
           display: 'flex',
+          flexDirection: 'column',
           alignItems: 'center',
           justifyContent: 'center',
           ...(kenBurns !== 'none' ? { willChange: 'transform' } : {}),
         }}
       >
         <div
+          ref={textRef}
           style={{
             fontFamily,
-            fontSize: cqFontSize(fontSize, base),
             fontWeight,
             color,
             textAlign,
@@ -122,6 +159,7 @@ export function BasicText({ config, durationMs }: EffectProps) {
         >
           {text}
         </div>
+        <Attribution text={attribution} color={color} />
       </div>
     </div>
   );

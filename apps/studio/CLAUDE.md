@@ -2,6 +2,14 @@
 
 This file provides guidance to Claude Code (claude.ai/code) when working with code in this repository.
 
+> **Reference donor, not the active editor.** `apps/studio_v2` ("studio-v2") is the
+> active editor now (the pantry / pairings / taste / preview surface on
+> `@harbor/player`). This app stays in the repo permanently as the reference
+> parts-donor: studio_v2 COPIED its Firebase client/admin and API routes
+> (`app/api/{presentations,media,fonts}`) rather than moving them, so this app is
+> intact for reference. The sandbox and the particle landing are kept too. Prefer
+> editing studio_v2 for editor work.
+
 > **Important:** Read `VISION.md` for product direction, architecture decisions, and the phased implementation plan. That document describes WHERE we're going. This document describes WHAT EXISTS today.
 
 > **Monorepo:** this app is `apps/studio` (package `wisdom`) in a pnpm workspace.

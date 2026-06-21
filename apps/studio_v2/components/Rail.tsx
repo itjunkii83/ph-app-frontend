@@ -1,6 +1,6 @@
 'use client';
 
-import { Image as ImageIcon, Type, Layers, SlidersHorizontal, Clapperboard, Sun, Moon } from 'lucide-react';
+import { Image as ImageIcon, Type, Layers, SlidersHorizontal, Clapperboard, Sun, Moon, RotateCcw } from 'lucide-react';
 import type { View } from '@/lib/types';
 import { useStudio } from '@/lib/store';
 import { cn } from '@/lib/utils';
@@ -27,8 +27,14 @@ const GROUPS: { label: string; items: { view: View; label: string; icon: React.R
 ];
 
 export function Rail({ view, setView }: { view: View; setView: (v: View) => void }) {
-  const { theme, toggleTheme } = useStudio();
+  const { theme, toggleTheme, resetAll } = useStudio();
   const activeBase: View = view === 'designer' ? 'pairings' : view;
+
+  const reset = () => {
+    if (window.confirm('Reset the pantry to the full default set? This replaces all backgrounds, effects, pairings, and rules.')) {
+      resetAll();
+    }
+  };
 
   return (
     <aside className="flex w-[228px] flex-none flex-col border-r border-line bg-ink2">
@@ -71,6 +77,13 @@ export function Rail({ view, setView }: { view: View; setView: (v: View) => void
         >
           {theme === 'dark' ? <Sun className="h-[17px] w-[17px]" /> : <Moon className="h-[17px] w-[17px]" />}
           {theme === 'dark' ? 'Light chrome' : 'Dark chrome'}
+        </button>
+        <button
+          onClick={reset}
+          className="flex w-full items-center gap-3 rounded-[10px] px-3 py-2.5 text-[13px] text-muted transition-colors hover:bg-paper/[0.04] hover:text-paper cursor-pointer"
+        >
+          <RotateCcw className="h-[17px] w-[17px]" />
+          Reset pantry
         </button>
       </div>
     </aside>

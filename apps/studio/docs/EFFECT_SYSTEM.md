@@ -257,6 +257,19 @@ const resetToIdle = useCallback((el: HTMLElement) => {
 }, []);
 ```
 
+### Fit to box and attribution
+
+Text effects support an opt-in `fitToBox` (with `minFontSize`): when on, the
+effect's `fontSize` is treated as a MAXIMUM and `useFitToBox`
+(`packages/player/src/hooks/useFitToBox.ts`) shrinks a long line to fit its box
+(responsive scaling via `cqFontSize` and content fitting compose). The hook owns
+the text element's font-size imperatively, so the effect must NOT set `fontSize`
+in its style, and a SplitText effect must call the returned `fit()` BEFORE
+splitting (and pass `frozen: isActive` so a resize never re-fits mid-animation).
+The optional `attribution` config renders a small muted line under the text via
+the shared `Attribution` component (the effect's wrapper is a centered flex
+column). Default `fitToBox` off so non-studio consumers are unchanged.
+
 ## Porting Effects from CodePen References
 
 Reference pens are stored in `tools/codepen/pens/`. They get there via the CodePen extractor — see [docs/CODEPEN.md](../../../docs/CODEPEN.md) for how a pen is downloaded, compiled to standalone HTML, and cataloged. When adapting a CodePen into a Wisdom effect:
@@ -373,7 +386,11 @@ box, OrbitControls, stats, and lil-gui — it uses a static camera).
 | BasicText | text | auto | None | css | Static text display |
 | DreamySmoke | text | auto | enter + exit | html | Per-char smoke dissipation via SplitText |
 | MaskedTextReveal | text | auto | enter + exit | html | Line/word/char masked reveal via SplitText |
+| HardCut | text | auto | enter + exit | html | Fast stepped scale-in cut for a punchy line |
+| Pulse | text | auto | enter + exit | html | Single emphatic scale pulse |
+| Bloom | text | auto | enter + exit | html | Slow scale + letter-spacing bloom |
 | BackgroundImage | background | indefinite | None | css | Static image with CSS filters |
+| GradientBackground | background | indefinite | None | css | CSS gradient or solid color backdrop (trusted `background` string) |
 | CloudyBackground | ambient | indefinite | enter + exit | css | Drifting cloud layers via CSS keyframes |
 | KenBurnsImage | image | fixed (8s) | enter + active + exit | css | Slow zoom on image |
 | Ocean | background | indefinite | enter + exit (fade) | webgl | three.js ocean + dynamic sky, clouds, bloom |

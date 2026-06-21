@@ -2,11 +2,12 @@
 
 import { useState } from 'react';
 import { Plus, Trash2, Play, Monitor, Smartphone, ArrowLeft } from 'lucide-react';
-import type { Pairing, Pantry, Anim } from '@/lib/types';
+import type { Pairing, Pantry } from '@/lib/types';
 import { FONT_OPTIONS, COLOR_SWATCHES } from '@/lib/types';
 import { useStudio } from '@/lib/store';
 import { uid } from '@/lib/utils';
-import { FilmSurface, FilmText } from './Film';
+import { bgEffect, textEffect } from '@/lib/preview';
+import { EffectStage } from './EffectStage';
 import { Button, Eyebrow, Field, IconButton, Modal, Pill, Select, Slider, TagEditor, TextInput } from './ui';
 
 const POS_OPTIONS = [
@@ -43,14 +44,18 @@ export function PairingsView() {
           const bg = bgById(p.bgId);
           const fx = fxById(p.fxId);
           return (
-            <div key={p.id} className="group overflow-hidden rounded-2xl border border-line bg-panel">
-              <FilmSurface bg={bg?.bg} className="relative aspect-[16/10]">
-                <FilmText text={p.text} attr={p.attr} anim={fx?.anim ?? 'rise'} font={p.font} color={p.color} cap={Math.min(p.cap, 44)} pos={p.pos} />
-                <div className="absolute right-2.5 top-2.5 flex gap-1.5 opacity-0 transition-opacity group-hover:opacity-100">
-                  <IconButton onClick={() => deletePairing(p.id)} className="border-white/20 bg-black/40 text-white/80 backdrop-blur hover:border-[#c8694a] hover:text-[#e0a08a]"><Trash2 className="h-3.5 w-3.5" /></IconButton>
+            <div
+              key={p.id}
+              onClick={() => setDesigner(p)}
+              className="group cursor-pointer overflow-hidden rounded-2xl border border-line bg-panel transition-colors hover:border-line2"
+            >
+              <div className="relative aspect-[16/10] overflow-hidden bg-black">
+                <EffectStage background={bgEffect(bg)} text={textEffect(fx, { text: p.text, font: p.font, color: p.color, cap: p.cap, attr: p.attr })} pos={p.pos} replayKey={p.id} className="absolute inset-0" />
+                <div className="absolute right-2.5 top-2.5 z-10 flex gap-1.5 opacity-0 transition-opacity group-hover:opacity-100">
+                  <IconButton onClick={(e) => { e.stopPropagation(); deletePairing(p.id); }} className="border-white/20 bg-black/40 text-white/80 backdrop-blur hover:border-[#c8694a] hover:text-[#e0a08a]"><Trash2 className="h-3.5 w-3.5" /></IconButton>
                 </div>
-              </FilmSurface>
-              <button onClick={() => setDesigner(p)} className="block w-full p-4 text-left cursor-pointer">
+              </div>
+              <div className="p-4">
                 <div className="mb-2 flex flex-wrap items-center gap-1.5">
                   <Pill>{bg?.name ?? 'missing bg'}</Pill>
                   <span className="text-muted2">+</span>
@@ -59,7 +64,7 @@ export function PairingsView() {
                 <div className="flex flex-wrap gap-1.5">
                   {p.best.map((b) => <Pill key={b} soft>{b}</Pill>)}
                 </div>
-              </button>
+              </div>
             </div>
           );
         })}
@@ -78,6 +83,7 @@ function PairingDesigner({ initial, onClose }: { initial: Pairing; onClose: () =
 
   const bg = bgById(p.bgId);
   const fx = fxById(p.fxId);
+  const txt = textEffect(fx, { text: p.text, font: p.font, color: p.color, cap: p.cap, attr: p.attr });
 
   const save = () => { upsertPairing(p); onClose(); };
   const remove = () => { deletePairing(p.id); onClose(); };
@@ -91,11 +97,11 @@ function PairingDesigner({ initial, onClose }: { initial: Pairing; onClose: () =
       <div className="grid grid-cols-[1.25fr_1fr] gap-7">
         <div>
           <Eyebrow className="mb-2">{exists ? 'Edit pairing' : 'New pairing'}</Eyebrow>
-          <FilmSurface bg={bg?.bg} className="relative mb-3 aspect-[16/10] rounded-2xl border border-line">
-            <FilmText text={p.text} attr={p.attr} anim={fx?.anim ?? 'rise'} font={p.font} color={p.color} cap={p.cap} pos={p.pos} playKey={playKey} />
-          </FilmSurface>
+          <div className="relative mb-3 aspect-[16/10] overflow-hidden rounded-2xl border border-line bg-black">
+            <EffectStage background={bgEffect(bg)} text={txt} pos={p.pos} replayKey={`${p.bgId}:${p.fxId}:${playKey}`} className="absolute inset-0" />
+          </div>
           <div className="flex gap-2.5">
-            <Button onClick={() => setPlayKey((k) => k + 1)}><Play className="h-4 w-4" /> Play</Button>
+            <Button onClick={() => setPlayKey((k) => k + 1)}><Play className="h-4 w-4" /> Replay</Button>
             <Button onClick={() => setDevice(true)}><Monitor className="h-4 w-4" /> Preview on devices</Button>
           </div>
         </div>
@@ -135,27 +141,37 @@ function PairingDesigner({ initial, onClose }: { initial: Pairing; onClose: () =
         </div>
       </div>
 
-      {device ? <DeviceModal pairing={p} bg={bg?.bg} anim={fx?.anim ?? 'rise'} onClose={() => setDevice(false)} /> : null}
+      {device ? <DeviceModal pairing={p} bg={bgEffect(bg)} text={txt} onClose={() => setDevice(false)} /> : null}
     </div>
   );
 }
 
-function DeviceModal({ pairing: p, bg, anim, onClose }: { pairing: Pairing; bg?: string; anim: Anim; onClose: () => void }) {
+function DeviceModal({
+  pairing: p,
+  bg,
+  text,
+  onClose,
+}: {
+  pairing: Pairing;
+  bg: ReturnType<typeof bgEffect>;
+  text: ReturnType<typeof textEffect>;
+  onClose: () => void;
+}) {
   const [playKey, setPlayKey] = useState(0);
   return (
     <Modal open onClose={onClose} eyebrow="Preview" title="On devices" wide footer={<div className="flex justify-end"><Button onClick={() => setPlayKey((k) => k + 1)}><Play className="h-4 w-4" /> Replay both</Button></div>}>
       <div className="flex items-start justify-center gap-8">
         <div>
           <div className="mb-2 flex items-center gap-2 text-xs text-muted"><Monitor className="h-4 w-4" /> Desktop</div>
-          <FilmSurface bg={bg} className="relative aspect-video w-[460px] rounded-xl border border-line">
-            <FilmText text={p.text} attr={p.attr} anim={anim} font={p.font} color={p.color} cap={p.cap} pos={p.pos} playKey={playKey} />
-          </FilmSurface>
+          <div className="relative aspect-video w-[460px] overflow-hidden rounded-xl border border-line bg-black">
+            <EffectStage background={bg} text={text} pos={p.pos} replayKey={`d:${playKey}`} className="absolute inset-0" />
+          </div>
         </div>
         <div>
           <div className="mb-2 flex items-center gap-2 text-xs text-muted"><Smartphone className="h-4 w-4" /> Mobile</div>
-          <FilmSurface bg={bg} className="relative aspect-[9/16] w-[200px] rounded-xl border border-line">
-            <FilmText text={p.text} attr={p.attr} anim={anim} font={p.font} color={p.color} cap={Math.min(p.cap, 56)} pos={p.pos} playKey={playKey} />
-          </FilmSurface>
+          <div className="relative aspect-[9/16] w-[200px] overflow-hidden rounded-xl border border-line bg-black">
+            <EffectStage background={bg} text={text} pos={p.pos} replayKey={`m:${playKey}`} className="absolute inset-0" />
+          </div>
         </div>
       </div>
     </Modal>

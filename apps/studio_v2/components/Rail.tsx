@@ -76,7 +76,7 @@ export function Rail({ view, setView }: { view: View; setView: (v: View) => void
           className="flex w-full items-center gap-3 rounded-[10px] px-3 py-2.5 text-[13px] text-muted transition-colors hover:bg-paper/[0.04] hover:text-paper cursor-pointer"
         >
           {theme === 'dark' ? <Sun className="h-[17px] w-[17px]" /> : <Moon className="h-[17px] w-[17px]" />}
-          {theme === 'dark' ? 'Light chrome' : 'Dark chrome'}
+          {theme === 'dark' ? 'Light' : 'Dark'}
         </button>
         <button
           onClick={reset}

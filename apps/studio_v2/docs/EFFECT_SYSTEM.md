@@ -390,7 +390,8 @@ box, OrbitControls, stats, and lil-gui — it uses a static camera).
 | Pulse | text | auto | enter + exit | html | Single emphatic scale pulse |
 | Bloom | text | auto | enter + exit | html | Slow scale + letter-spacing bloom |
 | BackgroundImage | background | indefinite | None | css | Static image with CSS filters |
-| GradientBackground | background | indefinite | None | css | CSS gradient or solid color backdrop (trusted `background` string) |
+| GradientBackground | background | indefinite | None | css | CSS gradient or solid color backdrop (trusted `background` string), optional slow radiance motion (`motion`: none/drift/breathe/glow, `speed`: slow/medium/fast) |
+| LiquidGradient | background | indefinite | None | css | Five colored orbs drifting over a base color, fused into liquid blobs by an SVG goo filter. Configurable `backgroundColor` + `color1..color5`, `speed`, `blendMode`. Ported from `animated_background.html` |
 | CloudyBackground | ambient | indefinite | enter + exit | css | Drifting cloud layers via CSS keyframes |
 | KenBurnsImage | image | fixed (8s) | enter + active + exit | css | Slow zoom on image |
 | Ocean | background | indefinite | enter + exit (fade) | webgl | three.js ocean + dynamic sky, clouds, bloom |

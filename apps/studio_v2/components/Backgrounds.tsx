@@ -9,7 +9,7 @@ import { effectOptions, defaultConfig } from '@/lib/registry';
 import { bgEffect } from '@/lib/preview';
 import { EffectStage } from './EffectStage';
 import { EffectConfigPanel } from './EffectConfigPanel';
-import { Button, Eyebrow, Field, Modal, Pill, Select, TagEditor, TextArea, TextInput } from './ui';
+import { Button, Eyebrow, Field, IconButton, Modal, Pill, Select, TagEditor, TextArea, TextInput } from './ui';
 
 const CONTRAST = [
   { value: 'low', label: 'Low' },
@@ -33,7 +33,7 @@ function blank(): Background {
 }
 
 export function BackgroundsView() {
-  const { pantry } = useStudio();
+  const { pantry, deleteBackground } = useStudio();
   const [editing, setEditing] = useState<Background | null>(null);
 
   return (
@@ -52,11 +52,14 @@ export function BackgroundsView() {
           <div
             key={bg.id}
             onClick={() => setEditing(bg)}
-            className="cursor-pointer overflow-hidden rounded-2xl border border-line bg-panel transition-colors hover:border-line2"
+            className="group cursor-pointer overflow-hidden rounded-2xl border border-line bg-panel transition-colors hover:border-line2"
           >
             <div className="relative aspect-[16/10] overflow-hidden bg-black">
               <EffectStage background={bgEffect(bg)} replayKey={bg.id} className="absolute inset-0" />
               <span className="absolute bottom-2.5 left-3 z-10 rounded-full bg-black/45 px-2.5 py-1 text-[11px] text-filmmuted backdrop-blur">{bg.role}</span>
+              <div className="absolute right-2.5 top-2.5 z-10 flex gap-1.5 opacity-0 transition-opacity group-hover:opacity-100">
+                <IconButton onClick={(e) => { e.stopPropagation(); deleteBackground(bg.id); }} className="border-white/20 bg-black/40 text-white/80 backdrop-blur hover:border-[#c8694a] hover:text-[#e0a08a]"><Trash2 className="h-3.5 w-3.5" /></IconButton>
+              </div>
             </div>
             <div className="p-4">
               <div className="mb-1.5 font-display text-[19px] text-paper">{bg.name}</div>

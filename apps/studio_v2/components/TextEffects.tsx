@@ -9,7 +9,7 @@ import { effectOptions, defaultConfig } from '@/lib/registry';
 import { NEUTRAL_BG, textEffect } from '@/lib/preview';
 import { EffectStage } from './EffectStage';
 import { EffectConfigPanel, TEXT_TREATMENT_FIELDS } from './EffectConfigPanel';
-import { Button, Eyebrow, Field, Modal, Pill, Select, TagEditor, TextArea, TextInput } from './ui';
+import { Button, Eyebrow, Field, IconButton, Modal, Pill, Select, TagEditor, TextArea, TextInput } from './ui';
 
 const SAMPLE_TREATMENT = { font: 'Fraunces', color: '#eef3f7', cap: 64 };
 // Demo copy at three lengths, so you can watch the effect (and fit-to-box) handle
@@ -41,7 +41,7 @@ function blank(): TextEffect {
 }
 
 export function TextEffectsView() {
-  const { pantry } = useStudio();
+  const { pantry, deleteEffect } = useStudio();
   const [editing, setEditing] = useState<TextEffect | null>(null);
 
   return (
@@ -57,7 +57,7 @@ export function TextEffectsView() {
 
       <div className="grid grid-cols-2 gap-5 xl:grid-cols-3">
         {pantry.textEffects.map((fx) => (
-          <EffectCard key={fx.id} fx={fx} onEdit={() => setEditing(fx)} />
+          <EffectCard key={fx.id} fx={fx} onEdit={() => setEditing(fx)} onDelete={() => deleteEffect(fx.id)} />
         ))}
       </div>
 
@@ -66,10 +66,10 @@ export function TextEffectsView() {
   );
 }
 
-function EffectCard({ fx, onEdit }: { fx: TextEffect; onEdit: () => void }) {
+function EffectCard({ fx, onEdit, onDelete }: { fx: TextEffect; onEdit: () => void; onDelete: () => void }) {
   const [playKey, setPlayKey] = useState(0);
   return (
-    <div onClick={onEdit} className="cursor-pointer overflow-hidden rounded-2xl border border-line bg-panel transition-colors hover:border-line2">
+    <div onClick={onEdit} className="group cursor-pointer overflow-hidden rounded-2xl border border-line bg-panel transition-colors hover:border-line2">
       <div className="relative aspect-[16/10] overflow-hidden bg-black">
         <EffectStage background={NEUTRAL_BG} text={textEffect(fx, { ...SAMPLE_TREATMENT, cap: 46, text: SAMPLES.small })} replayKey={`${fx.id}:${playKey}`} className="absolute inset-0" />
         <button
@@ -78,6 +78,9 @@ function EffectCard({ fx, onEdit }: { fx: TextEffect; onEdit: () => void }) {
         >
           <Play className="h-3 w-3" /> Replay
         </button>
+        <div className="absolute right-2.5 top-2.5 z-10 flex gap-1.5 opacity-0 transition-opacity group-hover:opacity-100">
+          <IconButton onClick={(e) => { e.stopPropagation(); onDelete(); }} className="border-white/20 bg-black/40 text-white/80 backdrop-blur hover:border-[#c8694a] hover:text-[#e0a08a]"><Trash2 className="h-3.5 w-3.5" /></IconButton>
+        </div>
       </div>
       <div className="p-4">
         <div className="mb-2 flex items-center justify-between">

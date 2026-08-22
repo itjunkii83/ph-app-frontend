@@ -2,6 +2,7 @@ import { registerEffect } from "./components/effects/registry";
 import {
   backgroundImageDefinition,
   gradientBackgroundDefinition,
+  liquidGradientBackgroundDefinition,
 } from "./components/effects/backgrounds";
 import {
   basicTextDefinition,
@@ -27,6 +28,7 @@ export function registerEffects(): void {
   registered = true;
   registerEffect(backgroundImageDefinition);
   registerEffect(gradientBackgroundDefinition);
+  registerEffect(liquidGradientBackgroundDefinition);
   registerEffect(basicTextDefinition);
   registerEffect(dreamySmokeDefinition);
   registerEffect(cloudyBackgroundDefinition);

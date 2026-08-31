@@ -54,7 +54,10 @@ export function useFonts(fontFamilies: string[]) {
               fontsToLoad.push({
                 family,
                 source: "google",
-                weights: [400],
+                // Cover the weights effects actually render (HardCut styles 600,
+                // DreamySmoke defaults 700). Loading only 400 made the browser
+                // synthesize faux-bold, which reads as the wrong typeface.
+                weights: [400, 600, 700],
                 styles: ["normal"],
               });
             }

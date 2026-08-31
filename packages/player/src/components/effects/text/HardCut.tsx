@@ -5,6 +5,8 @@ import { EffectProps, EffectDefinition, ConfigSchema } from '../../../types/effe
 import { useEffectLifecycle } from '../../../hooks/useEffectLifecycle';
 import { SPEED_MULTIPLIERS, SpeedOption } from '../../../lib/effects/speed';
 import { useFonts } from '../../../hooks/useFonts';
+import { useKenBurns } from '../../../hooks/useKenBurns';
+import { kenBurnsConfigField, KenBurnsDirection } from '../../../lib/effects/kenBurnsConfig';
 import { useBaseCanvas } from '../../../lib/responsive';
 import { useFitToBox } from '../../../hooks/useFitToBox';
 import { Attribution } from './Attribution';
@@ -43,6 +45,7 @@ const configSchema: ConfigSchema = {
   fitToBox: { type: 'boolean', label: 'Fit to box', default: false },
   minFontSize: { type: 'number', label: 'Min Font Size', default: 18, min: 8, max: 120, step: 1 },
   attribution: { type: 'string', label: 'Attribution', default: '' },
+  ...kenBurnsConfigField,
 };
 
 export function HardCut({ config, isActive, onComplete, durationMs }: EffectProps) {
@@ -57,11 +60,13 @@ export function HardCut({ config, isActive, onComplete, durationMs }: EffectProp
   const fitToBox = config.fitToBox ?? false;
   const minFontSize = config.minFontSize ?? 18;
   const attribution = config.attribution || '';
+  const kenBurns = (config.kenBurns || 'none') as KenBurnsDirection;
 
   useFonts([fontFamily]);
 
   const effectiveDurationMs = holdDuration > 0 ? holdDuration * 1000 : durationMs;
   const multiplier = SPEED_MULTIPLIERS[speed] ?? 1;
+  const { zoomRef } = useKenBurns({ direction: kenBurns, durationMs: effectiveDurationMs, speedMultiplier: multiplier });
 
   const { textRef, fit } = useFitToBox({
     enabled: fitToBox,
@@ -91,7 +96,10 @@ export function HardCut({ config, isActive, onComplete, durationMs }: EffectProp
   }, [multiplier]);
 
   const resetToIdle = useCallback((el: HTMLElement) => {
-    gsap.set(el, { clearProps: 'opacity' });
+    // Re-assert the authored hidden idle state. clearProps would DELETE the
+    // inline opacity (React's opacity: 0), snapping the container to computed
+    // opacity 1 and flashing the text for a frame before React advances.
+    gsap.set(el, { opacity: 0 });
     if (textRef.current) gsap.set(textRef.current, { clearProps: 'opacity,transform' });
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
@@ -108,6 +116,7 @@ export function HardCut({ config, isActive, onComplete, durationMs }: EffectProp
   return (
     <div ref={containerRef} style={{ width: '100%', height: '100%', opacity: 0 }}>
       <div
+        ref={zoomRef}
         style={{
           width: '100%',
           height: '100%',
@@ -115,6 +124,7 @@ export function HardCut({ config, isActive, onComplete, durationMs }: EffectProp
           flexDirection: 'column',
           alignItems: 'center',
           justifyContent: 'center',
+          ...(kenBurns !== 'none' ? { willChange: 'transform' } : {}),
         }}
       >
         <div

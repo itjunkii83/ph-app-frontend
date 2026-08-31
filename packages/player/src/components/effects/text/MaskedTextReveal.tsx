@@ -218,7 +218,10 @@ export function MaskedTextReveal({ config, isActive, onComplete, durationMs }: E
       splitRef.current.revert();
       splitRef.current = null;
     }
-    gsap.set(el, { clearProps: 'opacity' });
+    // Re-assert the authored hidden idle state. clearProps would DELETE the
+    // inline opacity (React's opacity: 0), snapping the container to computed
+    // opacity 1 and flashing the reverted text for a frame before React advances.
+    gsap.set(el, { opacity: 0 });
   }, []);
 
   const onDispose = useCallback(() => {

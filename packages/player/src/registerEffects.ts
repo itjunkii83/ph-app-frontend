@@ -11,6 +11,7 @@ import {
   hardCutDefinition,
   pulseDefinition,
   bloomDefinition,
+  cursorDefinition,
 } from "./components/effects/text";
 import { cloudyBackgroundDefinition } from "./components/effects/ambient";
 import { kenBurnsImageDefinition } from "./components/effects/image";
@@ -37,5 +38,6 @@ export function registerEffects(): void {
   registerEffect(hardCutDefinition);
   registerEffect(pulseDefinition);
   registerEffect(bloomDefinition);
+  registerEffect(cursorDefinition);
   registerEffect(oceanDefinition);
 }

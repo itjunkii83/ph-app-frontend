@@ -4,3 +4,4 @@ export { MaskedTextReveal, maskedTextRevealDefinition } from './MaskedTextReveal
 export { HardCut, hardCutDefinition } from './HardCut';
 export { Pulse, pulseDefinition } from './Pulse';
 export { Bloom, bloomDefinition } from './Bloom';
+export { Cursor, cursorDefinition } from './Cursor';

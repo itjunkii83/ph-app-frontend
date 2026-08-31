@@ -76,10 +76,16 @@ export function TextArea(props: React.TextareaHTMLAttributes<HTMLTextAreaElement
   );
 }
 
-export function Select({ value, onChange, options }: {
+// Pass `options` for a flat list, or `groups` for tier-grouped optgroups. They are
+// mutually exclusive; `groups` wins if both are given. Native optgroups render
+// unstyled (white) in dark mode, so the bg-panel/text-paper classes are set on both
+// the optgroup and its options.
+type SelectOption = { value: string; label: string };
+export function Select({ value, onChange, options, groups }: {
   value: string;
   onChange: (v: string) => void;
-  options: { value: string; label: string }[];
+  options?: SelectOption[];
+  groups?: { label: string; options: SelectOption[] }[];
 }) {
   return (
     <div className="relative">
@@ -88,9 +94,17 @@ export function Select({ value, onChange, options }: {
         onChange={(e) => onChange(e.target.value)}
         className="w-full cursor-pointer appearance-none rounded-[9px] border border-line bg-panel px-[11px] py-[9px] pr-8 text-[13px] text-paper outline-none focus:border-pewter"
       >
-        {options.map((o) => (
-          <option key={o.value} value={o.value} className="bg-panel text-paper">{o.label}</option>
-        ))}
+        {groups
+          ? groups.map((g) => (
+              <optgroup key={g.label} label={g.label} className="bg-panel text-paper">
+                {g.options.map((o) => (
+                  <option key={o.value} value={o.value} className="bg-panel text-paper">{o.label}</option>
+                ))}
+              </optgroup>
+            ))
+          : (options ?? []).map((o) => (
+              <option key={o.value} value={o.value} className="bg-panel text-paper">{o.label}</option>
+            ))}
       </select>
       <ChevronDown className="pointer-events-none absolute right-2.5 top-1/2 h-4 w-4 -translate-y-1/2 text-muted" />
     </div>

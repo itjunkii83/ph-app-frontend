@@ -78,7 +78,10 @@ WebGL effects (`components/effects/webgl/`, e.g. Ocean) sit on a small foundatio
   ratio) sized to the host element, runs `setAnimationLoop`, keeps the renderer and
   scene in sync with the responsive container via `ResizeObserver`, pushes live
   config edits through `applyConfig`, and disposes everything on unmount (including
-  the unmount-before-the-async-`import`-resolves race).
+  the unmount-before-the-async-`import`-resolves race). The loop is timed with a
+  `THREE.Timer` (Clock's successor — `Clock` is deprecated as of r180) that is
+  `connect`ed to `document` so a refocused background tab doesn't emit a delta spike;
+  it's `dispose`d on unmount.
 - A `ThreeSceneFactory` returns a `ThreeSceneHandle`
   (`render`/`resize`/`applyConfig`/`dispose`); adding a three.js effect = writing a
   factory. The component just pairs `useThreeEffect` with `useEffectLifecycle` — the

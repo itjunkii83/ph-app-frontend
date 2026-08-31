@@ -96,7 +96,13 @@ export interface SampleContext {
 }
 
 export type Theme = 'dark' | 'light';
-export type View = 'backgrounds' | 'effects' | 'pairings' | 'designer' | 'rules' | 'preview';
+export type View = 'backgrounds' | 'effects' | 'pairings' | 'designer' | 'rules' | 'preview' | 'zoltar';
+
+// Runtime list of views, used to map the URL path to a view and back.
+export const VIEWS: View[] = ['backgrounds', 'effects', 'pairings', 'designer', 'rules', 'preview', 'zoltar'];
+export function isView(value: string): value is View {
+  return (VIEWS as string[]).includes(value);
+}
 
 export const COLOR_SWATCHES = ['#eef3f7', '#cfd8df', '#9aa5af', '#7f8a94', '#b8935a'];
 export const FONT_OPTIONS = [

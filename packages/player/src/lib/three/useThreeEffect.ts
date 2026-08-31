@@ -41,6 +41,7 @@ export function useThreeEffect<T extends HTMLElement = HTMLElement>(
     let renderer: any = null;
     let handle: ThreeSceneHandle | null = null;
     let observer: ResizeObserver | null = null;
+    let timer: any = null;
     // `any` (not HTMLCanvasElement | null): it's assigned from the untyped
     // renderer, and strict null-checks in the consuming app otherwise flag it.
     let canvas: any = null;
@@ -103,10 +104,14 @@ export function useThreeEffect<T extends HTMLElement = HTMLElement>(
       handle.applyConfig(configRef.current);
       handle.resize(width, height);
 
-      const clock = new THREE.Clock();
-      renderer.setAnimationLoop(() => {
-        const delta = clock.getDelta();
-        handle?.render(clock.elapsedTime, delta);
+      // Timer is Clock's successor (Clock is deprecated as of r180). Connecting
+      // it to `document` opts into the Page Visibility API so a large delta
+      // spike isn't emitted when a backgrounded tab is refocused.
+      timer = new THREE.Timer();
+      timer.connect(document);
+      renderer.setAnimationLoop((timestamp: number) => {
+        timer.update(timestamp);
+        handle?.render(timer.getElapsed(), timer.getDelta());
       });
 
       observer = new ResizeObserver((entries) => {
@@ -125,6 +130,7 @@ export function useThreeEffect<T extends HTMLElement = HTMLElement>(
       handleRef.current = null;
       if (observer) observer.disconnect();
       if (renderer) renderer.setAnimationLoop(null);
+      if (timer) timer.dispose();
       if (handle) {
         try {
           handle.dispose();
